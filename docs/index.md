@@ -1,4 +1,7 @@
-{% include mathjax.html %}
+---
+title: ANN Elucubrations
+layout: default
+---
 
 # ann_elucubrations
 Sorting my notes about artificial neural networks
