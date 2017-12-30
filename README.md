@@ -4,7 +4,7 @@ Sorting my notes about artificial neural networks
 
 
 [Documentation index](docs/index.md)
-
+[Documentation index](https://poine.github.io/ann_elucubrations/)
 
 inline $$\forall x \in R$$
 
