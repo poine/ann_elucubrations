@@ -1,5 +1,6 @@
 import logging, math, numpy as np, scipy.integrate, matplotlib.pyplot as plt
 
+import utils as ut
 
 LOG = logging.getLogger('lti_first_order')
 
@@ -7,7 +8,8 @@ class Plant:
     def __init__(self, tau=1., dt=0.01):
         self.tau, self.dt = tau, dt
         self.ad, self.bd = np.exp(-dt/tau), 1. - np.exp(-dt/tau)
-        LOG.info('  Plant ad {} bd {}'.format(self.ad, self.bd))
+        LOG.info('  tau {} dt {}'.format(tau, dt))
+        LOG.info('  discrete time: ad {:.5f} bd {:.5f}'.format(self.ad, self.bd))
 
     def cont_dyn(self, X, t, U):
         Xd =  -1./self.tau*(X-U)
