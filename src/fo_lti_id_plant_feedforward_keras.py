@@ -16,7 +16,7 @@ class ANN_Plant:
     x_km1, u_km1, input_size = range(3)
     def __init__(self):
         self.ann = keras.models.Sequential()
-        self.ann.add(keras.layers.Dense(1, activation='linear', kernel_initializer='uniform', input_dim=2, use_bias=True))
+        self.ann.add(keras.layers.Dense(1, activation='linear', kernel_initializer='uniform', input_dim=2, use_bias=False))
         self.ann.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 
     def make_input(self, X, U):
@@ -34,7 +34,7 @@ class ANN_Plant:
         self.scaler = sklearn.preprocessing.StandardScaler()
         scaled_input = self.scaler.fit_transform(ann_input)
         LOG.info('  done. Now fitting set')
-        self.ann.fit(scaled_input, ann_output, epochs=20, batch_size=32,  verbose=1)
+        self.ann.fit(ann_input, ann_output, epochs=20, batch_size=32,  verbose=1, shuffle=True)
         LOG.info('  done')
         #LOG.info('  score: {:f}'.format(self.ann.score(scaled_input , ann_output)))
 
@@ -51,7 +51,8 @@ class ANN_Plant:
         self.ann = keras.models.load_model(filename+'.h5')
 
     def get(self, x_km1, u_km1):
-        return self.ann.predict(self.scaler.transform([[x_km1[0], u_km1[0]]]))
+        #return self.ann.predict(self.scaler.transform([[x_km1[0], u_km1[0]]]))
+        return self.ann.predict(np.array([[x_km1[0], u_km1[0]]]))
 
     def sim(self, time, X0, ctl):
         X, U = np.zeros((len(time), 1)),  np.zeros((len(time), 1))
@@ -62,7 +63,11 @@ class ANN_Plant:
         U[-1] = U[-2]
         return X, U
 
-
+    def summary(self):
+        #w, b = self.ann.layers[0].get_weights()
+        w = self.ann.layers[0].get_weights()
+        #pdb.set_trace()
+        LOG.info(' xkp1 = {:.5f} xk + {:.5f} uk'.format(w[0][0][0], w[0][1][0]))
 
 def main(make_training_set=True, train=True, test=True):
     training_traj_filename = '/tmp/frst_order_training_traj.pkl'
@@ -74,31 +79,14 @@ def main(make_training_set=True, train=True, test=True):
     ann = ANN_Plant()
 
     if train:
-        if make_training_set:
-            nsamples, max_nperiod = int(10*1e3), 10
-            LOG.info('  Generating random setpoints')
-            time, ctl.yc = ut.make_random_pulses(plant.dt, nsamples, max_nperiod=max_nperiod,  min_intensity=-10, max_intensity=10.)
-            LOG.info('   done. Generated {} random setpoints'.format(len(time)))
-            LOG.info('  Simulating trajectory ({} s)'.format(time[-1]))
-            X0 = [0.]
-            X, U = plant.sim(time, X0, ctl.get)
-            LOG.info('   done')
-            LOG.info('  Saving trajectory to {}'.format(training_traj_filename))
-            desc = 'random setpoint trajectory. max_nperiod: {}'.format(max_nperiod)
-            ut.save_trajectory(time, X, U, desc, training_traj_filename)
-        else:
-            LOG.info('  Loading trajectory from {}'.format(training_traj_filename))
-            time, X, U, desc = ut.load_trajectory(training_traj_filename)
-            LOG.info('     {} samples ({} s)'.format(len(time), time[-1]))
-            LOG.info('     desc: {}'.format(desc))
-     
+        time, X, U, desc =  ltifo.make_or_load_training_set(plant, ctl, make_training_set)
         ann.fit(time, X, U)
         ann.save(ann_plant_filename)
     else:
         ann.load(ann_plant_filename)
 
+    ann.summary()
     if test:
-        print ann.ann.layers[0].get_weights() 
         time =  np.arange(0., 15.05, plant.dt)
         ctl.yc = ut.step_input_vec(time, dt=8)
         X0 = [0]
@@ -113,4 +101,4 @@ def main(make_training_set=True, train=True, test=True):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     np.set_printoptions(linewidth=300)
-    main()
+    main(make_training_set=False, train=True, test=True)

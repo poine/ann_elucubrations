@@ -32,6 +32,27 @@ class Plant:
         U[-1] = U[-2]
         return X, U
 
+def make_or_load_training_set(plant, ctl, make_training_set):
+    training_traj_filename = '/tmp/frst_order_training_traj.pkl'
+    if make_training_set:
+        nsamples, max_nperiod = int(10*1e3), 10
+        LOG.info('  Generating random setpoints')
+        time, ctl.yc = ut.make_random_pulses(plant.dt, nsamples, max_nperiod=max_nperiod,  min_intensity=-10, max_intensity=10.)
+        LOG.info('   done. Generated {} random setpoints'.format(len(time)))
+        LOG.info('  Simulating trajectory ({} s)'.format(time[-1]))
+        X0 = [0.]
+        X, U = plant.sim(time, X0, ctl.get)
+        LOG.info('   done')
+        LOG.info('  Saving trajectory to {}'.format(training_traj_filename))
+        desc = 'random setpoint trajectory. max_nperiod: {}'.format(max_nperiod)
+        ut.save_trajectory(time, X, U, desc, training_traj_filename)
+    else:
+        LOG.info('  Loading trajectory from {}'.format(training_traj_filename))
+        time, X, U, desc = ut.load_trajectory(training_traj_filename)
+        LOG.info('     {} samples ({} s)'.format(len(time), time[-1]))
+        LOG.info('     desc: {}'.format(desc))
+        
+    return time, X, U, desc
 
 
 def plot(time, X, U=None, Yc=None):
