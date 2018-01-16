@@ -21,8 +21,16 @@ $$
 X_{k+1} = f_d(X_k, U_k)
 $$
 
-As a universal function approximator, an Artificial Neural Networks (ANN) can be trained to approximate a plant's dynamics.
+As a universal function approximator, an Artificial Neural Networks (ANN) can be trained to approximate the plant's dynamics.
 
+
+<figure>
+  <img src="images/ann_io_plant_id_principle.png" alt="The Pulpit Rock">
+  <figcaption>Fig1. - Input-Output Plant Identification.</figcaption>
+</figure>
+
+
+## FeedForward Perceptron Examples
 
 ### First Order Linear Time Invariant (LTI) System
 
@@ -35,16 +43,31 @@ $$
 which is discretized as
 
 $$
-
  x_{k+1} = a_d x_k + b_d u_k
-
 $$
 
 
-#### sklearn example
-[](code)
+[sklearn code](https://github.com/poine/ann_elucubrations/blob/master/src/fo_lti_id_plant_feedforward_sklearn.py) / [keras code](https://github.com/poine/ann_elucubrations/blob/master/src/fo_lti_id_plant_feedforward_keras.py)
 
 
-#### keras example
-[](code)
+### Second Order Linear Time Invariant (LTI) System
+
+#### Full State Access
+[code](https://github.com/poine/ann_elucubrations/blob/master/src/so_lti_plant_id_ff_sklearn.py)
+
+
+#### Output-only Access
+
+
+
+
+### [Electric DC motor](plant_id_dc_motor.html)
+
+### [Robot Arm](plant_id_robot_arm.html)
+
+### [Mobile Inverted Pendulum](plant_id_mip.html)
+
+
+
+
 
