@@ -39,7 +39,7 @@ A whole range of activation functions are commonly used. The following plot ( cr
 
 
 ### Effect of Weights and Biases
-By varying the weight and bias of a neuron, one is able to change the shape of the input/output function of the neuron, as shown in figure (XXX) ( created with [code](this https://github.com/poine/ann_elucubrations/blob/master/src/intro_weight.py) )
+By varying the weight and bias of a neuron, one is able to change the shape of the input/output function of the neuron, as shown in figure (XXX) ( created with this [code](this https://github.com/poine/ann_elucubrations/blob/master/src/intro_weight.py) )
 <figure>
   <img src="plots/intro_weights.png" alt="activation functions">
   <figcaption>FigXXX - Weights.</figcaption>
@@ -57,7 +57,7 @@ Input and ouput can be multi dimensional (tensors)
 Layers can be stacked into a network
 <figure>
   <img src="plots/intro_network_weights.png" alt="activation functions">
-  <figcaption>FigXXX - Activation functions.</figcaption>
+  <figcaption>FigXXX - Response of a dual layers network.</figcaption>
 </figure>
 
 ## Network Fitting
