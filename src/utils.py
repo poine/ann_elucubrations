@@ -30,12 +30,18 @@ def sine_sweep(t, omega=2, domega=0.5, domega1=0.5): return math.sin(omega*(1-do
 
 
 def random_input_vec(time): return np.random.uniform(low=-1.0, high=1.0, size=len(time))
-def step_input_vec(time, a0=-1, a1=1, dt=4, t0=0): return [step(t, a0, a1, dt, t0) for t in time]
+def step_vec(time, a0=-1, a1=1, dt=4, t0=0): return [step(t, a0, a1, dt, t0) for t in time]
 def sine_input_vec(time): return np.sin(time)
 def sawtooth_input_vec(time): return scipy.signal.sawtooth(time)
 def sine_swipe_input_vec(time): return [sine_sweep(t) for t in time]
 
 
+def ref_sine_vec(time, order=2):
+    ref = np.zeros((len(time), order))
+    ref[:,0] = np.sin(time)
+    ref[:,1] = np.cos(time)
+    return ref
+    
 """
 Plotting
 """
