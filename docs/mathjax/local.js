@@ -3,7 +3,7 @@ MathJax.Hub.Config({
     Macros: {
       RR: "{\\bf R}",
       bold: ["{\\bf #1}",1]
-     vect:["{\\underline #1}", 1] 
+      vect: ["{\\underline #1}", 1] 
     }
   }
 });
