@@ -2,8 +2,7 @@ MathJax.Hub.Config({
   TeX: {
     Macros: {
       RR: "{\\bf R}",
-      bold: ["{\\bf #1}",1],
-      vect: ["{\\underline #1}", 1] 
+      vect: ["{\\bf #1}",1]
     }
   }
 });
