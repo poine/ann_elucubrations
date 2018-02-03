@@ -2,7 +2,7 @@
 title: ANN Elucubrations
 layout: default
 ---
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://poine.github.io/ann_elucubrations/MathJax/config/local/local.js" type="text/javascript"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://poine.github.io/ann_elucubrations/mathjax/local.js" type="text/javascript"></script>
 
 # Mobile Inverted Pendulum
 
