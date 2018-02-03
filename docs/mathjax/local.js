@@ -3,7 +3,7 @@ MathJax.Hub.Config({
     Macros: {
       RR: "{\\bf R}",
       bold: ["{\\bf #1}",1]
-     \newcommand{\vect}[1]{\ensuremath{\underline{#1}}} 
+     vect:["{\\underline #1}", 1] 
     }
   }
 });
