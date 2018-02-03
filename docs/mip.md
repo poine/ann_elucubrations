@@ -8,6 +8,7 @@ layout: default
 
 ## Simple Planar Model
 
+$$ \RR $$
 
 <figure>
 	<img src="images/segway_one.jpg" height="252" alt="MIP">
