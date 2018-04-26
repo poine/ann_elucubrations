@@ -117,7 +117,7 @@ def test_tf(plant):
         return xk
         
     time =  np.arange(0., 15.05, plant.dt)
-    us = utils.step_input_vec(time, dt=8)
+    us = utils.step_vec(time, dt=8)
     ths = np.zeros(len(time))
     for k in range(3,len(time)):
         ths[k] =  dif_eq(ths[k-1], ths[k-2], ths[k-3], us[k-1], us[k-2], us[k-3])
@@ -144,7 +144,7 @@ def main(make_training_set=True, train=True, test=True):
     ann.summary()
     if test:
         time =  np.arange(0., 15.05, plant.dt)
-        yc = utils.step_input_vec(time, dt=8)
+        yc = utils.step_vec(time, dt=8)
         def ctl(X,k): return [yc[k], 0]
         X0 = [0, 0, 0]
         X1, U1 = plant.sim(time, X0, ctl)
@@ -153,6 +153,7 @@ def main(make_training_set=True, train=True, test=True):
         dc_motor.plot(time, X2, U2)
         plt.suptitle('test trajectory');plt.subplot(4,1,1); plt.legend(['plant','ANN'])
         plt.plot(time, ths)
+        plt.savefig('../docs/plots/plant_id__dc_motor__sim_io.png')
         plt.show()
         
 if __name__ == "__main__":

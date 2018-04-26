@@ -30,42 +30,35 @@ As a universal function approximator, an Artificial Neural Networks (ANN) can be
 </figure>
 
 
-## FeedForward Perceptron Examples
 
-### First Order Linear Time Invariant (LTI) System
+### Input/Output identification
 
-The continuous-time model of a first order LTI system is given by:
-
-$$
- \dot{x} = a_c x + b_c u = -\frac{1}{\tau} (x +gu) 
-$$
-
-which is discretized as
+NARMA model
 
 $$
- x_{k+1} = a_d x_k + b_d u_k
+  y_{k+d} = h\left( y_k, y_{k-1} \dots y_{k-n}, u_k, u_{k-1} \dots u_{k-m} \right)
 $$
 
 
-[sklearn code](https://github.com/poine/ann_elucubrations/blob/master/src/fo_lti_id_plant_feedforward_sklearn.py) / [keras code](https://github.com/poine/ann_elucubrations/blob/master/src/fo_lti_id_plant_feedforward_keras.py)
+Control-Affine model
+
+$$
+  y_{k+d} = h\left( y_k, y_{k-1} \dots y_{k-n}, u_{k-1} \dots u_{k-m} \right) + g\left( y_k, y_{k-1} \dots y_{k-n}, u_{k-1} \dots u_{k-m} \right).u_k
+$$
 
 
-### Second Order Linear Time Invariant (LTI) System
-
-#### Full State Access
-[code](https://github.com/poine/ann_elucubrations/blob/master/src/so_lti_plant_id_ff_sklearn.py)
+## Examples
 
 
-#### Output-only Access
+  * [First Order LTI](plant_id__fo_lti.html)
 
+  * [Second Order LTI](plant_id__so_lti.html)
 
+  * [Electric DC motor](plant_id_dc_motor.html)
 
+  * [Robot Arm](plant_id_robot_arm.html)
 
-### [Electric DC motor](plant_id_dc_motor.html)
-
-### [Robot Arm](plant_id_robot_arm.html)
-
-### [Mobile Inverted Pendulum](plant_id_mip.html)
+  * [Mobile Inverted Pendulum](plant_id_mip.html)
 
 
 

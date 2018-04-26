@@ -16,7 +16,7 @@ class ANN_Plant:
 
     def __init__(self):
         params = {
-            'hidden_layer_sizes':(),     # 
+            'hidden_layer_sizes':(),      # 
             'activation':'identity',      # ‘identity’, ‘logistic’, ‘tanh’, ‘relu’
             'solver': 'adam',             # ‘lbfgs’, ‘sgd’, ‘adam’
             'verbose':False, 
@@ -100,7 +100,8 @@ def main(make_training_set=True, train=True, test=True):
     ann.summary()
     if test:
         time =  np.arange(0., 15.05, plant.dt)
-        yc = utils.step_vec(time, dt=8)
+        yc = 2*utils.step_vec(time, dt=8, a0=-1, a1=1)
+        #print yc
         def ctl(X,t, k): return [yc[k]]
         X0 = [0, 0]
         X1, U1 = plant.sim(time, X0, ctl)
@@ -115,4 +116,4 @@ def main(make_training_set=True, train=True, test=True):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     np.set_printoptions(linewidth=300)
-    main(make_training_set=False, train=True, test=True)
+    main(make_training_set=True, train=True, test=True)

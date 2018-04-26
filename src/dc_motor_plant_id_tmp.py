@@ -167,6 +167,8 @@ class ANN_PLANT2bis(ANN_PLANT):
         self.ann.fit(scaled_input , ann_output)
         print(' done')
         print('score: {:e}'.format(self.ann.score(scaled_input , ann_output)))
+        c, w = self.ann.coefs_, self.ann.intercepts_
+        print c, w
 
     def get(self, _input):
         return self.ann.predict(self.scaler.transform([_input]))
@@ -307,7 +309,8 @@ def main(train_filename, test_filename, ann_kind):
 
     figure = plot(time_test, X_test, U_test)
     plot(time_test, Xe_test, None, figure,'test set')
-
+    plt.savefig('../docs/plots/plant_id__dc_motor__real_io.png')
+ 
     plot_err(time_test, X_test, Xe_test)
     
     plt.show()

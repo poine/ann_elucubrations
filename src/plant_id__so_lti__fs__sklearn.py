@@ -81,7 +81,7 @@ class ANN_Plant:
 def main(make_training_set=True, train=True, test=True):
     ann_plant_filename = '/tmp/so_lti_plant_fs_ffmlp.pkl'
 
-    omega, xi, dt= 3., 0.9, 0.01
+    omega, xi, dt= 3., 0.2, 0.01
     plant, ctl = so_lti.CCPlant(omega, xi, dt), ut.CtlNone()
     ann = ANN_Plant()
     if train:
@@ -94,16 +94,17 @@ def main(make_training_set=True, train=True, test=True):
     ann.summary()
     if test:
         time =  np.arange(0., 15.05, plant.dt)
-        ctl.yc = ut.step_input_vec(time, dt=8)
+        ctl.yc = ut.step_vec(time, dt=8)
         X0 = [0]
         X1, U1 = plant.sim(time, X0, ctl.get)
         X2, U2 = ann.sim(time, X0, ctl.get)
         so_lti.plot(time, X1, U1)
         so_lti.plot(time, X2, U2)
         plt.suptitle('test trajectory');plt.subplot(3,1,1); plt.legend(['plant','ANN'])
+        plt.savefig('../docs/plots/plant_id__so_lti__fs__sklearn.png')
         plt.show()
         
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     np.set_printoptions(linewidth=300)
-    main(make_training_set=True, train=True)
+    main(make_training_set=True, train=True, test=True)

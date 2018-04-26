@@ -8,8 +8,6 @@ layout: default
 
 ## Simple Planar Model
 
-$$ \RR $$
-
 <figure>
 	<img src="images/segway_one.jpg" height="252" alt="MIP">
 	<img src="drawings/planar_mip.png" height="252" alt="Planar MIP Schematics">
@@ -53,22 +51,25 @@ $$\begin{equation}
 
 ### Dynamics
 
-\begin{enumerate}
-\item Angular acceleration of the wheel
-  \begin{equation}
+
+  * Angular acceleration of the wheel
+  $$\begin{equation}
     I_w \ddot{\phi} = \tau - F R
-  \end{equation}
-\item Linear acceleration of the wheel
-  \begin{equation}
+  \end{equation}$$
+
+  * Linear acceleration of the wheel
+  $$\begin{equation}
     m_w \begin{pmatrix} \ddot{x} \\ 0 \end{pmatrix} = \begin{pmatrix}-P_x - F \\ N - P_y -m_w g \end{pmatrix}
-  \end{equation}
-\item Angular acceleration of the body
-   \begin{equation}
+  \end{equation}$$
+
+  * Angular acceleration of the body
+   $$\begin{equation}
     I_b \ddot{\theta} = -\tau + P_y L \sin{\theta} + P_x L \cos{\theta}
-   \end{equation}
- \item Linear acceleration of the body
-   in $\vect{i}$ direction: \begin{equation} m_b (\ddot{x} -\dot{\theta}L\cos{\theta} + \dot{theta}^2 L \sin{\theta}) = P_x \end{equation}
-\end{enumerate}
+   \end{equation}$$
+
+  * Linear acceleration of the body
+   in $$\vect{i}$$ direction: $$\begin{equation} m_b (\ddot{x} -\dot{\theta}L\cos{\theta} + \dot{theta}^2 L \sin{\theta}) = P_x \end{equation}$$
+
 
 ### State Space Equation
 
@@ -79,36 +80,48 @@ $$\begin{equation}
 \begin{equation}
   \left(I_w + (m_b+m_w)R^2\right) \ddot{\phi} + (m_b R L \cos{\theta}) \ddot{\theta}  = m_b R L \dot{\theta}^2 \sin{\theta} + \tau
 \end{equation}
+
 or matricially
-\begin{equation}
+
+$$\begin{equation}
   \begin{pmatrix}a & b \\ c & a \end{pmatrix} \begin{pmatrix}\ddot{\phi} \\ \ddot{\theta} \end{pmatrix} =
   \begin{pmatrix} d \\ e \end{pmatrix}
-\end{equation}
+\end{equation}$$
+
 with
-\begin{equation}
+
+$$\begin{equation}
   a = m_bRL\cos{\theta} \quad b = I_b + m_bL^2 \quad c = I_w + (m_b+m_w)R^2 
-\end{equation}
+\end{equation}$$
+
 and
-\begin{equation}
+
+$$\begin{equation}
   d = m_b g L \sin{\theta} - \tau \quad e =  m_b R L \dot{\theta}^2 \sin{\theta} + \tau
-\end{equation}
-When the system has full rank ($a^2-bc \ne 0$), equations can be separated, leading to
-\begin{equation}
+\end{equation}$$
+
+When the system has full rank ($$a^2-bc \ne 0$$), equations can be separated, leading to
+
+$$\begin{equation}
   \begin{pmatrix}\ddot{\phi} \\ \ddot{\theta} \end{pmatrix} =
   \frac{1}{a^2-bc}\begin{pmatrix}a & -b \\ -c & a \end{pmatrix}\begin{pmatrix} d \\ e \end{pmatrix}
-\end{equation}
+\end{equation}$$
+
 or
-\begin{equation}
+
+$$\begin{equation}
   \begin{pmatrix}\ddot{\phi} \\ \ddot{\theta} \end{pmatrix} =
   \frac{1}{a^2-bc}\begin{pmatrix} ad-be \\ -cd+ae\end{pmatrix}
-\end{equation}
+\end{equation}$$
+
 which expands to:
-\begin{equation}
+
+$$\begin{equation}
   \begin{cases}
     \ddot{\phi} = \\
     \ddot{\theta} =
   \end{cases}
-\end{equation}
+\end{equation}$$
 
 
 

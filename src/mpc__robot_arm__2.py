@@ -6,9 +6,9 @@
 '''
 
 import logging, numpy as np, math, matplotlib.pyplot as plt
+import casadi, mpctools as mpc
 import pdb
 import utils as ut, robot_arm
-import casadi, mpctools as mpc
 
 LOG = logging.getLogger('mpc__robot_arm__2')
 
@@ -64,15 +64,19 @@ class NMPController:
 def main():
     dt, horizon = 0.01, 50
     time = np.arange(0, 5.25, dt)
-    sp = np.vstack((ut.step_vec(time), np.zeros(len(time)))).T
+    #sp = np.vstack((ut.step_vec(time), np.zeros(len(time)))).T
     #sp = ut.ref_sine_vec(time)
+    sp = ut.lin_ref_vec(time, ut.step_vec(time), omega=3.)
+    pert = np.zeros(len(time))
+    pert[150:160] = -10.
     X0 = [0.2, 1.]
     plant = robot_arm.Plant()
-    ctl = NMPController(horizon, sp, plant)
+    ctl = NMPController(horizon, sp[:,:2], plant, u_sat=15., dt=dt)
 
     time = time[:-ctl.horizon]
-    X, U = plant.sim(time, X0, ctl)
+    X, U = plant.sim(time, X0, ctl, pert)
     robot_arm.plot(time, X, U, ref=sp[:-ctl.horizon])
+    plt.subplot(3,1,1); plt.legend(['plant', 'reference'])
     plt.savefig('../docs/images/robot_arm__mpc__2.png')
     plt.show()
     

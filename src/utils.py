@@ -1,7 +1,7 @@
 """
 Utility functions
 """
-import math, numpy as np, pickle
+import math, numpy as np, scipy, pickle
 
 """
 Unit convertions
@@ -31,8 +31,8 @@ def sine_sweep(t, omega=2, domega=0.5, domega1=0.5): return math.sin(omega*(1-do
 
 def random_input_vec(time): return np.random.uniform(low=-1.0, high=1.0, size=len(time))
 def step_vec(time, a0=-1, a1=1, dt=4, t0=0): return [step(t, a0, a1, dt, t0) for t in time]
-def sine_input_vec(time): return np.sin(time)
-def sawtooth_input_vec(time): return scipy.signal.sawtooth(time)
+def sine_vec(time): return np.sin(time)
+def sawtooth_vec(time): return scipy.signal.sawtooth(time)
 def sine_swipe_input_vec(time): return [sine_sweep(t) for t in time]
 
 
@@ -41,7 +41,89 @@ def ref_sine_vec(time, order=2):
     ref[:,0] = np.sin(time)
     ref[:,1] = np.cos(time)
     return ref
-    
+
+def lin_ref_vec(time, sp, omega=3., xi=0.7):
+    _r = SecOrdLinRef(omega, xi)
+    ref = np.zeros((len(time), 3))
+    for i in range(1, len(time)):
+        ref[i] = _r.run(time[i]-time[i-1], sp[i])
+    return ref
+
+#
+#  Linear reference models
+#
+
+class LinRef:
+    ''' Linear Reference Model (with first order integration)'''
+    def __init__(self, K):
+        '''K: coefficients of the caracteristic polynomial, in ascending powers order,
+              highest order ommited (normalized to -1)'''
+        self.K = K; self.order = len(K)
+        self.X = np.zeros(self.order+1)
+
+    def run(self, dt, sp):
+        self.X[:self.order] += self.X[1:self.order+1]*dt
+        e =  np.array(self.X[:self.order]); e[0] -= sp
+        self.X[self.order] = np.sum(e*self.K)
+        return self.X
+
+    def poles(self):
+        return np.roots(np.insert(np.array(self.K[::-1]), 0, -1))
+
+    def reset(self, X0=None):
+        if X0 is None: X0 = np.zeros(self.order+1)
+        self.X = X0
+
+
+class FirstOrdLinRef(LinRef):
+    def __init__(self, tau):
+        LinRef.__init__(self, [-1/tau])
+
+class SecOrdLinRef(LinRef):
+    def __init__(self, omega, xi):
+        LinRef.__init__(self, [-omega**2, -2*xi*omega])
+
+
+class MotorRef(LinRef):
+    ''' this is a third order ref, driven by its first derivative '''
+    def __init__(self, omega, xi):
+        LinRef.__init__(self, [0, -omega**2, -2*xi*omega])
+
+    def run(self, dt, sp):
+        self.X[:self.order] += self.X[1:self.order+1]*dt
+        e =  np.array(self.X[:self.order]); e[1] -= sp
+        self.X[self.order] = np.sum(e*self.K)
+        return self.X
+
+
+"""
+Compute numerical jacobian 
+"""
+def num_jacobian(X, U, dyn):
+    s_size = len(X)
+    i_size = len(U)
+    epsilonX = (0.1*np.ones(s_size)).tolist()
+    dX = np.diag(epsilonX)
+    A = np.zeros((s_size, s_size))
+    for i in range(0, s_size):
+        dx = dX[i,:]
+        delta_f = dyn(X+dx/2, 0, U) - dyn(X-dx/2, 0, U)
+        delta_f = delta_f / dx[i]
+        A[:,i] = delta_f
+
+    epsilonU = (0.1*np.ones(i_size)).tolist()
+    dU = np.diag(epsilonU)
+    B = np.zeros((s_size,i_size))
+    for i in range(0, i_size):
+        du = dU[i,:]
+        delta_f = dyn(X, 0, U+du/2) - dyn(X, 0, U-du/2)
+        delta_f = delta_f / du[i]
+        B[:,i] = delta_f
+
+    return A,B
+
+
+
 """
 Plotting
 """

@@ -10,10 +10,24 @@ DC Motor Plant Identification
 
 [code](https://github.com/poine/ann_elucubrations/blob/master/src/dc_motor_plant_id__sim_fs.py)
 
+<figure>
+  <img src="plots/plant_id__dc_motor__sim_fs.png" alt="Motor test trajectory">
+  <figcaption>Fig1. - DC Motor test trajectory, Full state plant identification.</figcaption>
+</figure>
+
+
 [code](https://github.com/poine/ann_elucubrations/blob/master/src/dc_motor_plant_id__sim_io.py)
+<figure>
+  <img src="plots/plant_id__dc_motor__sim_io.png" alt="Motor test trajectory, IO plant identification">
+  <figcaption>Fig1. - DC Motor test trajectory, IO plant identification.</figcaption>
+</figure>
 
 ### Experimentation
-
+[code](https://github.com/poine/ann_elucubrations/blob/master/src/dc_motor_plant_id_tmp.py)
+<figure>
+  <img src="plots/plant_id__dc_motor__real_io.png" alt="Motor test trajectory, IO plant identification">
+  <figcaption>Fig1. - DC Motor test trajectory, IO plant identification.</figcaption>
+</figure>
 
 ### Bibliography
 
