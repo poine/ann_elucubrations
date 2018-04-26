@@ -7,7 +7,7 @@
 '''
 
 
-import logging, timeit, math, numpy as np, scipy.signal, scipy.integrate, matplotlib.pyplot as plt, pickle
+import logging, timeit, math, numpy as np, scipy.signal, scipy.integrate, matplotlib.pyplot as plt, pickle, os
 import control
 
 LOG = logging.getLogger('dc_motor')
@@ -54,6 +54,8 @@ class Plant:
             dt_sys = control.sample_system(ct_sys, self.dt, method='zoh') #  ‘matched’, ‘tustin’, ‘zoh’
             self.Ad, self.Bd = dt_sys.A, dt_sys.B 
         LOG.info('\nAd\n{}\nBd\n{}'.format(self.Ad, self.Bd))
+        tf_disc = control.tf(dt_sys)
+        print tf_disc
         
     def cont_dyn(self, X, t, U):
         phi_dot = X[self.s_om]
@@ -61,10 +63,12 @@ class Plant:
         ia_dot = 1/self.P.La*( U[self.i_va] - self.P.Kv*X[self.s_om] - self.P.Ra*X[self.s_ia])
         return np.array([phi_dot, om_dot, ia_dot])
 
-    def disc_dyn(self, Xk, Uk):
+    def disc_dyn2(self, Xk, Uk):
         _unused, Xkp1 = scipy.integrate.odeint(self.cont_dyn, Xk, [0, self.dt], args=(Uk,))
         return Xkp1
 
+    def disc_dyn(self, Xk, Uk):
+        return np.dot(self.Ad, Xk) + np.dot(self.Bd, Uk)
     
     def sim(self, time, X0, ctl):
         X, U = np.zeros((len(time), self.s_size)),  np.zeros((len(time), self.i_size))
@@ -93,9 +97,9 @@ def plot(time, X, U):
 
 
 
-def make_or_load_training_set(plant, make_training_set, filename = '/tmp/dc_motor_training_traj.pkl'):
-    if make_training_set:
-        dt, nsamples, max_nperiod = 0.01, int(10*1e3), 10
+def make_or_load_training_set(plant, make_training_set, filename = '/tmp/dc_motor_training_traj.pkl', nsamples=int(10*1e3)):
+    if make_training_set or not os.path.isfile(filename):
+        dt, max_nperiod = 0.01, 10
         LOG.info('  Generating random setpoints')
         if 1:
             time, yc = ut.make_random_pulses(plant.dt, nsamples, max_nperiod=max_nperiod,  min_intensity=-10, max_intensity=10.)

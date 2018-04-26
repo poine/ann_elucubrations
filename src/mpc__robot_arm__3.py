@@ -2,7 +2,7 @@
 #-*- coding: utf-8 -*-
 
 '''
-  Model Predictive Control of a robot arm using an ANN model model
+  Model Predictive Control of a robot arm using a previously trained ANN as model
 '''
 
 import logging, numpy as np, math, matplotlib.pyplot as plt

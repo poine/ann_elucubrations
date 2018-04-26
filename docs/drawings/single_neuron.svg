@@ -28,14 +28,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="371.99324"
-     inkscape:cy="-54.758167"
+     inkscape:zoom="2.8"
+     inkscape:cx="296.48434"
+     inkscape:cy="62.993842"
      inkscape:document-units="px"
      inkscape:current-layer="g4144-7"
      showgrid="false"
-     inkscape:window-width="2061"
-     inkscape:window-height="1281"
+     inkscape:window-width="2648"
+     inkscape:window-height="1614"
      inkscape:window-x="2616"
      inkscape:window-y="41"
      inkscape:window-maximized="0"
@@ -132,7 +132,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -208,14 +208,14 @@
     <circle
        r="19.697975"
        cy="120.24394"
-       cx="178.29192"
+       cx="272.22049"
        id="path4451"
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:14.69999981;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <g
        id="g4521"
-       transform="matrix(3.4865293,0,0,3.4865293,-614.22062,-340.92909)"
+       transform="matrix(3.4865293,0,0,3.4865293,-520.29205,-340.92909)"
        ns0:preamble=""
        ns0:text="$+$"
        inkscape:export-xdpi="90"
@@ -266,7 +266,7 @@
        id="rect4136-2"
        width="56.063465"
        height="35.860416"
-       x="150.26018"
+       x="244.18875"
        y="29.330214"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
@@ -311,7 +311,7 @@
          inkscape:export-xdpi="90"
          inkscape:export-ydpi="90" />
       <g
-         transform="translate(-10.621574,6.8086578)"
+         transform="translate(16.318848,6.8086578)"
          ns0:text="$b$"
          ns0:preamble=""
          id="g4652"
@@ -361,20 +361,20 @@
       <path
          inkscape:connector-curvature="0"
          id="path4718"
-         d="m 215.11512,143.71594 0,9.41623"
+         d="m 242.05554,143.71594 0,9.41623"
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.28681818px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker4720)"
          inkscape:export-xdpi="90"
          inkscape:export-ydpi="90" />
       <path
          inkscape:connector-curvature="0"
          id="path4740"
-         d="m 233.65785,150.74546 0,17.09408 14.39448,-8.31066 z"
+         d="m 208.86857,150.74546 0,17.09408 14.39448,-8.31066 z"
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.28681818px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          inkscape:export-xdpi="90"
          inkscape:export-ydpi="90" />
       <g
          id="g4836"
-         transform="translate(11.397916,26.672375)"
+         transform="translate(-13.39137,26.672375)"
          ns0:preamble=""
          ns0:text="$w$"
          inkscape:export-xdpi="90"
@@ -600,7 +600,7 @@
       </g>
       <path
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.28681818px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker5450)"
-         d="m 220.90973,159.50623 12.31353,0"
+         d="m 223.26574,159.50623 12.31353,0"
          id="path5442"
          inkscape:connector-curvature="0"
          inkscape:export-xdpi="90"
@@ -635,7 +635,7 @@
       <text
          xml:space="preserve"
          style="font-style:normal;font-weight:normal;font-size:3.58522725px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         x="206.54941"
+         x="233.48982"
          y="132.39412"
          id="text5540-3"
          sodipodi:linespacing="125%"
@@ -643,12 +643,12 @@
          inkscape:export-ydpi="90"><tspan
            sodipodi:role="line"
            id="tspan5542-2"
-           x="206.54941"
+           x="233.48982"
            y="132.39412">Bias</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-weight:normal;font-size:3.58522725px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         x="232.48026"
+         x="207.69096"
          y="149.48819"
          id="text5540-0"
          sodipodi:linespacing="125%"
@@ -656,7 +656,7 @@
          inkscape:export-ydpi="90"><tspan
            sodipodi:role="line"
            id="tspan5542-6"
-           x="232.48026"
+           x="207.69096"
            y="149.48819">Weight</tspan></text>
       <text
          xml:space="preserve"

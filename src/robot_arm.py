@@ -32,7 +32,7 @@ class Plant:
     s_phi, s_phid, s_size = range(3)
 
     # input
-    # tau: load torque, (N.m)
+    # tau: motor torque, (N.m)
     i_tau, i_size = range(2)
 
     def __init__(self, dt=0.01, P=None):
@@ -54,12 +54,12 @@ class Plant:
         B = np.array([[0],[self.P.c]])
         return A, B
     
-    def sim(self, time, X0, ctl):
+    def sim(self, time, X0, ctl, pert=None):
         X, U = np.zeros((len(time), self.s_size)),  np.zeros((len(time), self.i_size))
         X[0] = X0
         for i in range(1, len(time)):
             U[i-1] = ctl(X[i-1], time[i-1], i-1)
-            X[i] = self.disc_dyn(X[i-1], U[i-1])
+            X[i] = self.disc_dyn(X[i-1], U[i-1]+(pert[i] if pert is not None else 0))
         U[-1] = U[-2]
         return X, U
 
@@ -80,14 +80,15 @@ def plot(time, X, U=None, sp=None, ref=None, figure=None):
     if ref is not None: plt.plot(time, ut.deg_of_rad(ref[:,1]))
     ut.decorate(ax, title="$\dot{\\theta}$", ylab='deg/s')
     ax = plt.subplot(3, 1, 3)
-    plt.plot(time, U[:,Plant.i_tau])
-    ut.decorate(ax, title="$\\tau$", ylab='N.m', xlab='time in s')
+    if U is not None:
+        plt.plot(time, U[:,Plant.i_tau])
+        ut.decorate(ax, title="$\\tau$", ylab='N.m', xlab='time in s')
     return figure
 
 
-def make_or_load_training_set(plant, make_training_set, filename):
+def make_or_load_training_set(plant, make_training_set, filename, nsamples=int(50*1e3)):
     if make_training_set:
-        dt, nsamples, max_nperiod = 0.01, int(50*1e3), 10
+        dt, max_nperiod = 0.01, 10
         LOG.info('  Generating random setpoints')
         if 1:
             time, yc = ut.make_random_pulses(plant.dt, nsamples, max_nperiod=max_nperiod,  min_intensity=-4, max_intensity=4.)

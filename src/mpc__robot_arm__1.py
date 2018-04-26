@@ -18,12 +18,14 @@ class NMPController:
         # model
         def ode(x,u): return plant.cont_dyn(x, 0., u)
         model_ode = mpc.getCasadiFunc(ode, [plant.s_size, plant.i_size], ["x", "u"], funcname="f")
+
         # stage cost
         self.scx, self.scu = np.diag([5000., 100.]), 1.e-3
         def lfunc(x, u, x_sp, u_sp):
             dx = x - x_sp
             return mpc.mtimes(dx.T, self.scx, dx) + self.scu*mpc.mtimes(u.T,u)
         stage_cost = mpc.getCasadiFunc(lfunc, [plant.s_size, plant.i_size, plant.s_size, plant.i_size], ["x", "u", "x_sp", "u_sp"], funcname="l")
+
         # terminal weight
         self.tw = np.diag([5000., 100.])
         def Pffunc(x, x_sp):
@@ -31,6 +33,7 @@ class NMPController:
             return mpc.mtimes(dx.T, self.tw, dx)
         term_weight = mpc.getCasadiFunc(Pffunc, [plant.s_size, plant.s_size], ["x", "x_sp"], funcname="Pf")
 
+        # solver
         N = {"t":self.horizon, "x":plant.s_size, "u":plant.i_size, "c":2}
         sp = {'x': np.zeros((self.horizon+1, plant.s_size)), 'u':np.zeros((self.horizon, plant.i_size))}
         args = dict(
@@ -40,7 +43,7 @@ class NMPController:
             lb={"u" : -u_sat*np.ones((self.horizon, plant.i_size))},
             ub={"u" :  u_sat*np.ones((self.horizon, plant.i_size))},
         )
-        self.solver = mpc.nmpc(f=model_ode, N=N, Delta=0.1, sp=sp, **args)
+        self.solver = mpc.nmpc(f=model_ode, N=N, Delta=0.01, sp=sp, **args)
         
     def __call__(self, X, t, k):
         for i in range(self.horizon+1): # find a way to assign array
@@ -54,12 +57,9 @@ class NMPController:
 
 
     
-def main():
-    dt, horizon = 0.01, 50
-    time = np.arange(0, 5.25, dt)
-    sp = np.vstack((ut.step_vec(time), np.zeros(len(time)))).T
-    #sp = ut.ref_sine_vec(time)
-    X0 = [0., 1.]
+def run_sim(time, sp, horizon=50):
+   
+    X0 = [0.2, 1.]
     plant = robot_arm.Plant()
     ctl = NMPController(horizon, sp, plant)
 
@@ -68,7 +68,15 @@ def main():
     robot_arm.plot(time, X, U, ref=sp[:-ctl.horizon])
     plt.savefig('../docs/images/robot_arm__mpc__1.png')
     plt.show()
+
+
+def main():
+    dt = 0.01
+    time = np.arange(0, 5.25, dt)
     
+    sp = np.vstack((ut.step_vec(time), np.zeros(len(time)))).T
+    #sp = ut.ref_sine_vec(time)
+    run_sim(time, sp)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

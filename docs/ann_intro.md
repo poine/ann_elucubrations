@@ -11,7 +11,7 @@ A nice and practical introduction to Artificial Neural Networks (ANN) can be fou
 The equation representing a single neuron is
 
 $$
-o = act(w(i+b))
+o = act(w.i+b)
 $$
 
 where:
@@ -65,6 +65,32 @@ Layers can be stacked into a network
 
 
 ### back propagation
+
+
+## Examples
+
+### Learning a sine
+ [code](this https://github.com/poine/ann_elucubrations/blob/master/src/intro_learn_sine.py)
+ 
+<figure>
+  <img src="plots/intro__learn_sine__identity.png" alt="activation functions">
+  <figcaption>FigXXX - identity activation.</figcaption>
+</figure>
+
+<figure>
+  <img src="plots/intro__learn_sine__logistic.png" alt="activation functions">
+  <figcaption>FigXXX - logistic activation.</figcaption>
+</figure>
+
+<figure>
+  <img src="plots/intro__learn_sine__tanh.png" alt="activation functions">
+  <figcaption>FigXXX - tanh activation.</figcaption>
+</figure>
+
+<figure>
+  <img src="plots/intro__learn_sine__relu.png" alt="activation functions">
+  <figcaption>FigXXX - relu activation.</figcaption>
+</figure>
 
 
 

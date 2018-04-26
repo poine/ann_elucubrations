@@ -93,7 +93,7 @@ def main(make_training_set=True, train=True, test=True):
     ann.summary()
     if test:
         time =  np.arange(0., 15.05, plant.dt)
-        yc = utils.step_input_vec(time, dt=8)
+        yc = utils.step_vec(time, dt=8)
         def ctl(X,k): return [yc[k], 0]
         X0 = [0, 0, 0]
         X1, U1 = plant.sim(time, X0, ctl)
@@ -101,6 +101,7 @@ def main(make_training_set=True, train=True, test=True):
         dc_motor.plot(time, X1, U1)
         dc_motor.plot(time, X2, U2)
         plt.suptitle('test trajectory');plt.subplot(4,1,1); plt.legend(['plant','ANN'])
+        plt.savefig('../docs/plots/plant_id__dc_motor__sim_fs.png')
         plt.show()
         
 if __name__ == "__main__":

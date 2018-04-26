@@ -98,7 +98,7 @@ def main(make_training_set=True, train=True, test=True):
 
     if test:
         time =  np.arange(0., 15.05, plant.dt)
-        ctl.yc = ut.step_input_vec(time, dt=8)
+        ctl.yc = ut.step_vec(time, dt=8)
         X0 = [0]
         X1, U1 = plant.sim(time, X0, ctl.get)
         X2, U2 = ann.sim(time, X0, ctl.get)
@@ -111,4 +111,4 @@ def main(make_training_set=True, train=True, test=True):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     np.set_printoptions(linewidth=300)
-    main(make_training_set=False, train=True, test=True)
+    main(make_training_set=True, train=True, test=True)
