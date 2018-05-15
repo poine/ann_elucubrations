@@ -22,6 +22,7 @@ import tflearn
 import argparse
 import pprint as pp
 
+import gym_foo
 
 from collections import deque
 import random
@@ -388,7 +389,7 @@ def train(sess, env, args, actor, critic, actor_noise):
                 print('| Reward: {:d} | Episode: {:d} | Qmax: {:.4f}'.format(int(ep_reward), \
                         i, (ep_ave_max_q / float(j))))
                 break
-
+#import pdb
 def main(args):
 
     with tf.Session() as sess:
@@ -397,7 +398,7 @@ def main(args):
         np.random.seed(int(args['random_seed']))
         tf.set_random_seed(int(args['random_seed']))
         env.seed(int(args['random_seed']))
-
+        #pdb.set_trace()
         state_dim = env.observation_space.shape[0]
         action_dim = env.action_space.shape[0]
         action_bound = env.action_space.high
