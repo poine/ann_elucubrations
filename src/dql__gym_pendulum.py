@@ -26,6 +26,7 @@ import gym_foo
 
 from collections import deque
 import random
+import pdb
 
 class ReplayBuffer(object):
 
@@ -291,6 +292,7 @@ class OrnsteinUhlenbeckActionNoise:
 # ===========================
 
 def build_summaries():
+    #pdb.set_trace()
     episode_reward = tf.Variable(0.)
     tf.summary.scalar("Reward", episode_reward)
     episode_ave_max_q = tf.Variable(0.)
@@ -376,7 +378,7 @@ def train(sess, env, args, actor, critic, actor_noise):
             s = s2
             ep_reward += r
 
-            if terminal:
+            if terminal or j >= int(args['max_episode_len'])-1:
 
                 summary_str = sess.run(summary_ops, feed_dict={
                     summary_vars[0]: ep_reward,
@@ -386,10 +388,10 @@ def train(sess, env, args, actor, critic, actor_noise):
                 writer.add_summary(summary_str, i)
                 writer.flush()
 
-                print('| Reward: {:d} | Episode: {:d} | Qmax: {:.4f}'.format(int(ep_reward), \
-                        i, (ep_ave_max_q / float(j))))
+                print('| Reward: {:d} | Episode: {:d} | Qmax: {:.4f} | len {} | rep buf {}'.format(int(ep_reward), \
+                                                                                                   i, (ep_ave_max_q / float(j)), j, replay_buffer.size()))
                 break
-#import pdb
+
 def main(args):
 
     with tf.Session() as sess:
@@ -414,7 +416,7 @@ def main(args):
                                float(args['gamma']),
                                actor.get_num_trainable_vars())
         
-        actor_noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(action_dim))
+        actor_noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(action_dim), sigma=0.3)
 
         if args['use_gym_monitor']:
             if not args['render_env']:
@@ -450,7 +452,7 @@ if __name__ == '__main__':
     parser.add_argument('--summary-dir', help='directory for storing tensorboard info', default='./results/tf_ddpg')
 
     parser.set_defaults(render_env=False)
-    parser.set_defaults(use_gym_monitor=True)
+    parser.set_defaults(use_gym_monitor=False)
     
     args = vars(parser.parse_args())
     
