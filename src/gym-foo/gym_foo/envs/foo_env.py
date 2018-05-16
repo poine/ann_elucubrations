@@ -26,7 +26,7 @@ class FooEnv(gym.Env):
             np.finfo(np.float32).max])
         
         self.observation_space = gym.spaces.Box(-high, high, dtype=np.float32)
-        self.action_space = gym.spaces.Box(low=-1, high=1, shape=(1,), dtype=np.float32)
+        self.action_space = gym.spaces.Box(low=-3, high=3, shape=(1,), dtype=np.float32)
 
         
         self.viewer = None
@@ -39,38 +39,34 @@ class FooEnv(gym.Env):
     
     def step(self, action):
         # take action
+        #print(action)
         x, x_dot, theta, theta_dot = self.state
         costheta = math.cos(theta)
         sintheta = math.sin(theta)
-        temp = (action + self.polemass_length * theta_dot * theta_dot * sintheta) / self.total_mass
+        temp = (action[0] + self.polemass_length * theta_dot * theta_dot * sintheta) / self.total_mass
         thetaacc = (self.gravity * sintheta - costheta* temp) / (self.length * (4.0/3.0 - self.masspole * costheta * costheta / self.total_mass))
         xacc  = temp - self.polemass_length * thetaacc * costheta / self.total_mass
         x  = x + self.dt * x_dot
         x_dot = x_dot + self.dt * xacc
         theta = theta + self.dt * theta_dot
         theta_dot = theta_dot + self.dt * thetaacc
-        self.state = (x,x_dot,theta,theta_dot)
+        self.state = np.array([x, x_dot, theta, theta_dot])
 
+        cost = -0.5 + 0.1*(x**2) + 0.5*(theta**2) + 0.1*(theta_dot**2) + 0.01*(action[0]**2)
+        reward = -cost
 
-        #self.xd = -1/self.tau*(self.x-action) 
-        #self.x += self.xd*self.dt
-        #self.t += self.dt
-        reward = 1 - np.abs(np.tanh(x))
-        #over = np.abs(self.x) > 1 or self.t > 10.
         over =  x < -self.x_threshold \
                 or x > self.x_threshold \
                 or theta < -self.theta_threshold \
                 or theta > self.theta_threshold
         info = {}
-        return np.array(self.state), reward, over, info
+        return self.state, reward, over, info
         
     def reset(self):
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
         return np.array(self.state)
-        #self.x = 0.1
-        #self.xd = 0.
-        #self.t = 0.
+    
   
     def render(self, mode='human', close=False):
         #print self.t, self.x, self.xd
