@@ -4,7 +4,11 @@ register(
     id='foo-v0',
     entry_point='gym_foo.envs:FooEnv',
 )
-#register(
-#    id='foo-extrahard-v0',
-#    entry_point='gym_foo.envs:FooExtraHardEnv',
-#)
+register(
+    id='cont-cartpole-with-ref-v0',
+    entry_point='gym_foo.envs:CartPoleWithRefEnv',
+)
+register(
+    id='planar_quad-v0',
+    entry_point='gym_foo.envs:PlanarQuadEnv',
+)
