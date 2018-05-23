@@ -248,7 +248,7 @@ class Agent:
         episode_reward = tf.Variable(0.)
         tf.summary.scalar("Reward", episode_reward)
         episode_ave_max_q = tf.Variable(0.)
-        tf.summary.scalar("Qmax Value", episode_ave_max_q)
+        tf.summary.scalar("Qmax_Value", episode_ave_max_q)
         episode_duration = tf.Variable(0.)
         tf.summary.scalar("Duration", episode_duration)
         
@@ -392,15 +392,15 @@ def main(args):
             else:
                 env = wrappers.Monitor(env, args['monitor_dir'], force=True)
                 
+        if args['load']:
+            agent.load(sess, os.path.join(args['load_dir'], 'agent'))
+
         if args['train']:
             agent.train(sess, env, args)
-        
             if args['use_gym_monitor']:
                 env.monitor.close()
-
-            agent.save(sess, '/tmp/foo')
-        else:
-            agent.load(sess, '/tmp/foo')
+        if args['save']:
+            agent.save(sess, os.path.join(args['save_dir'], 'agent'))
             
         if args['test']:
             agent.test(sess, env, args)
@@ -430,7 +430,11 @@ if __name__ == '__main__':
 
     parser.add_argument('--train', help='train the agent', action='store_true')
     parser.add_argument('--test', help='test the trained agent', action='store_true')
-    
+    parser.add_argument('--save', help='save the trained agent', action='store_true')
+    parser.add_argument('--save_dir', help='directory to save the agent', default='/tmp')
+    parser.add_argument('--load', help='load the agent', action='store_true')
+    parser.add_argument('--load_dir', help='directory from which to load the agent', default='/tmp')
+     
     parser.set_defaults(render_env=False)
     parser.set_defaults(use_gym_monitor=False)
     parser.set_defaults(train=False)

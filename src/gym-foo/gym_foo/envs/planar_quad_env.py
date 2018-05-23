@@ -12,7 +12,7 @@ class PlanarQuadEnv(gym.Env):
  
         self.x_threshold = 2.4
         self.z_threshold = 2.4
-        self.theta_threshold = np.deg2rad(30)
+        self.theta_threshold = np.deg2rad(45)
         
         high = np.array([
             self.x_threshold * 2,      # x
@@ -49,7 +49,7 @@ class PlanarQuadEnv(gym.Env):
 
         info = {}
 
-        state = np.array(elf.pvtol.state)
+        state = np.array(self.pvtol.state)
         
         return state, reward, over, info
 
@@ -74,10 +74,12 @@ class PlanarQuadEnv(gym.Env):
             quad = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
             self.quadtrans = rendering.Transform()
             quad.add_attr(self.quadtrans)
-            self.viewer.add_geom(cart)
+            self.viewer.add_geom(quad)
         if self.pvtol.state is None: return None
 
         x, z, th, xd, zd, thd = self.pvtol.state
-        
-
+        px = x*scale+screen_width/2.0  # middle of quad
+        py = z*scale+screen_height/2.0 # middle of quad
+        self.quadtrans.set_translation(px, py)
+        self.quadtrans.set_rotation(-th)
         return self.viewer.render(return_rgb_array = mode=='rgb_array')

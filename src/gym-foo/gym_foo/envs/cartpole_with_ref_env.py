@@ -18,9 +18,18 @@ class CartPoleWithRefEnv(gym.Env):
         self.theta_threshold = np.deg2rad(20)
         self.x_threshold = 2.4
 
+        # high = np.array([
+        #     self.x_threshold * 2,      # x cart
+        #     np.finfo(np.float32).max,  # xdot cart
+        #     self.theta_threshold * 2,  # theta cart
+        #     np.finfo(np.float32).max,  # thetadot cart
+        #     self.x_threshold,          # x ref
+        #     np.finfo(np.float32).max,  # xdot ref
+        #     np.finfo(np.float32).max,  # xdotdot ref
+        # ])
         high = np.array([
-            self.x_threshold * 2,      # x cart
-            np.finfo(np.float32).max,  # xdot cart
+            self.x_threshold * 2,      # dx 
+            np.finfo(np.float32).max,  # dxdot 
             self.theta_threshold * 2,  # theta cart
             np.finfo(np.float32).max,  # thetadot cart
             self.x_threshold,          # x ref
@@ -61,7 +70,7 @@ class CartPoleWithRefEnv(gym.Env):
                 or theta < -self.theta_threshold \
                 or theta > self.theta_threshold
         info = {}
-        state = np.concatenate((self.cartpole.state, self.ref.X))
+        state = np.array([dx, dxd, theta, theta_dot, xr, xrd, xrdd])#np.concatenate((self.cartpole.state, self.ref.X))
         return state, reward, over, info
         
     def reset(self):
@@ -70,7 +79,8 @@ class CartPoleWithRefEnv(gym.Env):
         self.ref.X[1] = self.cartpole.state[1]
         self.step_no = 0
         _unused, self.setpoints = misc.make_random_pulses(self.dt, self.max_steps, min_nperiod=10, max_nperiod=100, min_intensity=-2, max_intensity=2.)
-        return np.concatenate((self.cartpole.state, self.ref.X))
+        #return np.concatenate((self.cartpole.state, self.ref.X))
+        return np.array([0, 0, 0, 0, 0, 0, 0])
     
   
     def render(self, mode='human', close=False):

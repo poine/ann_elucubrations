@@ -45,8 +45,8 @@ class PVTOL:
         cth, sth = np.cos(th), np.sin(th)
         ut, ud = f1+f2, f2-f1
 
-        xdd = -sth/self.m*ut
-        zdd =  cth/self.m*ut - self.gravity
+        xdd = -sth/self.mass*ut
+        zdd =  cth/self.mass*ut - self.gravity
         thdd = self.l/self.J*ud
 
         xd  += xdd*dt
