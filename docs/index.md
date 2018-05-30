@@ -40,6 +40,7 @@ layout: default
 	  <!--* [Mobile Inverted Pendulum](mobile_inverted_pendulum.html) -->
 	  <!--* [Car-like vehicle](car.html) -->
 	  <!--* [Planar Quadrotor](planar_quad.html) -->
+	  * [Planar VTOL with Pole](pvtol_pole.html)
 	  <!--* [Longitudinal fixed wing](longitudinal_aicraft.html) -->
 	  <!--* [Lateral fixed wing](lateral_aicraft.html) -->
     * [Toolboxes](toolboxes.html)
