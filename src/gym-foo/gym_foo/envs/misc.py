@@ -59,6 +59,21 @@ class PVTOL:
         self.state = np.array([x, z, norm_angle(th), xd, zd, thd])
         return self.state
 
+    def jac(self):
+        A = np.array([[0, 0, 0, 1, 0, 0],
+                      [0, 0, 0, 0, 1, 0],
+                      [0, 0, 0, 0, 0, 1],
+                      [0, 0, -self.gravity, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0]])
+        B = np.array([[0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [1/self.mass, 1/self.mass],
+                      [-self.l/self.J, self.l/self.J]])
+        return A, B
+
         
 #
 #  Linear reference models

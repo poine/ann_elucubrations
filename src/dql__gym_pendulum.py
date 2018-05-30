@@ -226,7 +226,7 @@ class Agent:
         self.action_dim = env.action_space.shape[0]
         self.action_bound = env.action_space.high
         # Ensure action bound is symmetric
-        assert (env.action_space.high == -env.action_space.low)
+        assert (np.all(env.action_space.high == -env.action_space.low))
 
         self.actor = ActorNetwork(sess, self.state_dim, self.action_dim, self.action_bound,
                              float(args['actor_lr']), float(args['tau']),
