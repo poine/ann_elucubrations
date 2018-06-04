@@ -23,6 +23,9 @@ The following figure describes the variables and parameters of the model:
 
 We will start by deriving a dynamic model for the PVTOL with pole system.
 
+It can be seen that the vector $$q=\begin{pmatrix}x&z&\theta&\phi\end{pmatrix}^T $$ can be used a generalized coordinates as it uniquely describes the configuration of the system.
+
+
 ### Kinematic
 
 Assumingt that the pole is constrained to pivot at the center of the PVTOL, the position of the center of mass of the pole is then given by:
@@ -122,3 +125,92 @@ $$
 \frac{\partial{L}}{\partial{\dot{\phi}}} = j \dot{\phi} + ml \left( l\dot{\phi} - \left( \dot{x}\cos{\phi}+\dot{z}\sin{\phi} \right)\right)\\
 \end{cases}
 $$
+
+### Lagrange Equations
+
+ *
+ 
+$$
+\frac{d}{dt}\left( \frac{\partial{L}}{\partial{\dot{x}}} \right) - \frac{\partial{L}}{\partial{x}} = F_x
+$$
+
+$$
+\left( M+m \right) \ddot{x} - ml \left( \ddot{\phi} \cos{\phi} - \dot{\phi}^2\sin{\phi}\right) = -(f_1+f_2) \sin{\theta}
+$$
+
+ *
+ 
+$$
+\frac{d}{dt}\left( \frac{\partial{L}}{\partial{\dot{z}}} \right) - \frac{\partial{L}}{\partial{z}} = F_z
+$$
+
+$$
+\left( M+m \right) \ddot{z} - ml \left( \ddot{\phi} \sin{\phi} + \dot{\phi}^2\cos{\phi}\right) + \left( M+m \right) g = (f_1+f_2) \cos{\theta}
+$$
+
+*
+
+
+$$
+\frac{d}{dt}\left( \frac{\partial{L}}{\partial{\dot{\theta}}} \right) - \frac{\partial{L}}{\partial{\theta}} = M_{\theta}
+$$
+
+$$
+J\ddot{\theta} = L \left( -f_1+f_2 \right)
+$$
+
+*
+
+$$
+\frac{d}{dt}\left( \frac{\partial{L}}{\partial{\dot{\phi}}} \right) - \frac{\partial{L}}{\partial{\phi}} = 0
+$$
+
+$$
+(j+ml^2)\ddot{\phi} - ml \left( \ddot{x}\cos{\phi} + (\ddot{z}+g)\sin{\phi} \right) = 0
+$$
+
+### State Space Representation
+ We have now obtained 4 coupled ODEs that needs to be uncoupled to obtain a SSR.
+ 
+$$
+\begin{cases}
+\ddot{x} - \frac{ml}{M+m} \cos{\phi} \ddot{\phi} = - \frac{ml}{M+m} \sin{\phi} \dot{\phi}^2 - \frac{1}{M+m} \sin{\theta} (f_1 +f_2) \\
+\ddot{z} - \frac{ml}{M+m} \sin{\phi} \ddot{\phi} = \frac{ml}{M+m} \cos{\phi} \dot{\phi}^2 -g + \frac{1}{M+m}  \cos{\theta} (f_1 +f_2) \\
+\ddot{\theta} = \frac{L}{J}(-f_1+f_2) \\
+\ddot{\phi} -\frac{ml}{j+ml^2}\left( \ddot{x} \cos{\phi} + (\ddot{z} + g) \sin{\phi} \right) = 0 
+\end{cases}
+$$
+
+The above can be matricially rewritten as a linear system:
+<!--
+$$
+  \begin{pmatrix}
+  1 & 0 & a & 0 \\
+  0 & 1 & b & 0 \\
+  0 & 0 & 0 & 1 \\
+  c & d & 1 & 0
+  \end{pmatrix}
+  \begin{pmatrix}
+  \ddot{x}\\ \ddot{z} \\ \ddot{\phi} \\ \ddot{\theta}
+  \end{pmatrix} =
+  \begin{pmatrix}
+  e \\ f \\ g \\ 0
+  \end{pmatrix}
+$$
+-->
+$$
+  \begin{pmatrix}
+  1 & 0 & 0 & a \\
+  0 & 1 & 0 & b \\
+  0 & 0 & 1 & 0 \\
+  c & d & 0 & 1
+  \end{pmatrix}
+  \begin{pmatrix}
+  \ddot{x}\\ \ddot{z} \\ \ddot{\theta} \\ \ddot{\phi}
+  \end{pmatrix} =
+  \begin{pmatrix}
+  e \\ f \\ g \\ h
+  \end{pmatrix}
+$$
+
+The system has full rank ( $$det(A) = 1$$ ).
