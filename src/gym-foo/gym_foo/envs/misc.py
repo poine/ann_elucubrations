@@ -123,3 +123,31 @@ def make_random_pulses(dt, size, min_nperiod=1, max_nperiod=10, min_intensity=-1
 
 
     
+
+
+"""
+Compute numerical jacobian 
+"""
+def num_jacobian(X, U, dyn):
+    s_size = len(X)
+    i_size = len(U)
+    epsilonX = (0.1*np.ones(s_size)).tolist()
+    dX = np.diag(epsilonX)
+    A = np.zeros((s_size, s_size))
+    for i in range(0, s_size):
+        dx = dX[i,:]
+        delta_f = dyn(X+dx/2, 0, U) - dyn(X-dx/2, 0, U)
+        delta_f = delta_f / dx[i]
+        A[:,i] = delta_f
+
+    epsilonU = (0.1*np.ones(i_size)).tolist()
+    dU = np.diag(epsilonU)
+    B = np.zeros((s_size,i_size))
+    for i in range(0, i_size):
+        du = dU[i,:]
+        delta_f = dyn(X, 0, U+du/2) - dyn(X, 0, U-du/2)
+        delta_f = delta_f / du[i]
+        B[:,i] = delta_f
+
+    return A,B
+
