@@ -6,10 +6,14 @@ import control
 import gym, gym_foo.envs.pvtol_pole as pvtp, utils as ut
 LOG = logging.getLogger('test_gym_pvtol_pole')
 
+'''
+   Simulate the PVTOL pole system
+'''
+
 class StateFeedbackReg:
-    def __init__(self, v):
-        self.Ue = v.Ue
-        A, B = v.jac()
+    def __init__(self, env):
+        self.Ue = env.pvtp.Ue
+        A, B = env.pvtp.jac()
         poles=[-5, -5, -5, -5, -5, -5, -5, -5]
         self.K = control.matlab.place(A, B, poles)
         
@@ -17,16 +21,18 @@ class StateFeedbackReg:
         dX = state - Xsp
         return (self.Ue - np.dot(self.K, dX)).squeeze()
 
-def sim(v, r):
-    _dt, _len = 0.01, 900
+def sim(env, r):
+    _dt, _len = 0.01, 1200
     time = np.linspace(0., _len*_dt, _len)
-    Xsp = np.zeros((_len, v.s_size))
-    Xsp[:,pvtp.PVTP.s_x] = ut.step_vec(time, dt=6)
-    X, U = np.zeros((_len, v.s_size)), np.zeros((_len, v.i_size))
-    X[0] = np.zeros(8)#np.array(v.state)
+    Xsp = np.zeros((_len, env.pvtp.s_size))
+    Xsp[:,pvtp.PVTP.s_x] = ut.step_vec(time, dt=6, t0=2.7)
+    X, U = np.zeros((_len, env.pvtp.s_size)), np.zeros((_len, env.pvtp.i_size))
+    X0 = np.array([1, 0, 0, 0, 0, 0, 0, 0])
+    X[0] = env.reset(X0)[:env.pvtp.s_size]
     for i in range(1, len(time)):
         U[i-1] = r.predict(X[i-1], Xsp[i-1])
-        X[i] = v.disc_dyn(X[i-1], U[i-1], _dt)
+        state, reward, over, info = env.step(U[i-1])
+        X[i] = state[:env.pvtp.s_size]
     U[-1] = U[-2]
     return time, X, U
     
@@ -49,22 +55,21 @@ def plot(time, X, U):
     ut.decorate(ax, title='$f$', ylab='N')
 
 import pyglet
-def render(env, time, X, U, fps=25., save=True):
+def render(env, time, X, U, fps=25, save=True):
     for i in range(len(time)):
         env.pvtp.state = X[i]
         env.render(info='t={:.1f}s'.format(time[i]))
         if save:
             pyglet.image.get_buffer_manager().get_color_buffer().save('/tmp/sc/screenshot_{:04d}.png'.format(i))
     if save:
-        os.system('apngasm /tmp/pvtol_pole_sim_1_anim.apng /tmp/sc/screenshot_0*')
+        os.system('apngasm /tmp/pvtol_pole_sim_1_anim.apng /tmp/sc/screenshot_0* 1 {:d}'.format(fps))
 
 def main(_plot=True, _render=True):
     env_name = 'pvtol_pole-v0'
     env = gym.make(env_name)
     env.seed(123)
-    v = env.pvtp
-    r = StateFeedbackReg(v)
-    time, X, U = sim(v, r)
+    r = StateFeedbackReg(env)
+    time, X, U = sim(env, r)
     if _plot:
         plot(time, X, U)
         plt.show()
@@ -74,4 +79,4 @@ def main(_plot=True, _render=True):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     np.set_printoptions(linewidth=300, suppress=True)
-    main(_plot=False)
+    main(_plot=True, _render=False)
