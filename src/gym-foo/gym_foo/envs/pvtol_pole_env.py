@@ -4,7 +4,7 @@ import pvtol_pole as pvtp
 
 '''
 
-   openai gym pvtol pole enviroment
+   openai gym pvtol pole environment
 
 '''
 import pyglet
@@ -46,15 +46,20 @@ class PVTOLPoleEnv(gym.Env):
 
     def _get_state(self): return np.concatenate((self.pvtp.state, self.setpoint))
 
-    def reset(self):
-        l = 0.9*np.array([self.x_threshold, self.z_threshold, self.th_threshold, self.ph_threshold, 0.5, 0.5, 0.1, 0.1])
-        self.pvtp.state = self.np_random.uniform(low = -l, high=l)
+    def reset(self, X0=None):
+        if X0 is None:
+            l = 0.9*np.array([self.x_threshold, self.z_threshold, self.th_threshold, self.ph_threshold, 0.5, 0.5, 0.1, 0.1])
+            self.pvtp.state = self.np_random.uniform(low = -l, high=l)
+        else:
+            self.pvtp.state = X0
         self.step_no = 0
         return self. _get_state()
     
     def step(self, action):
         self.step_no += 1
-
+        X = self.pvtp.disc_dyn(self.pvtp.state, action, self.dt)
+        self.pvtp.state = X
+        
         Q, R = np.diag([0.2, 0.2, 0., 0., 0.05, 0.05, 0.02, 0.04]), np.diag([0.0125, 0.0125])
         X, Xr = self.pvtp.state, np.array([self.setpoint[0], self.setpoint[1], 0, 0, 0, 0, 0, 0])
         dX = X - Xr

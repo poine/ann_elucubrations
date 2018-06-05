@@ -83,11 +83,11 @@ $$
 ### Lagrangian
 
 $$
-L = T - V
+\mathscr{L} = T - V
 $$
 
 $$
-L = \frac{1}{2}Mv^2 +  \frac{1}{2} J \dot{\theta}^2 +\frac{1}{2}mv_p^2 + \frac{1}{2} j \dot{\phi}^2 -  Mgz - mgz_p
+\mathscr{L} = \frac{1}{2}Mv^2 +  \frac{1}{2} J \dot{\theta}^2 +\frac{1}{2}mv_p^2 + \frac{1}{2} j \dot{\phi}^2 -  Mgz - mgz_p
 $$
 
 <!--
@@ -107,7 +107,7 @@ Expanding with state variables, we get:
 
 $$
 \begin{multline}
-L = \frac{1}{2} \left( M+m \right)  \left( \dot{x}^2 + \dot{z}^2 \right) + \frac{1}{2} J \dot{\theta}^2 + \frac{1}{2} j \dot{\phi}^2 \\
+\mathscr{L} = \frac{1}{2} \left( M+m \right)  \left( \dot{x}^2 + \dot{z}^2 \right) + \frac{1}{2} J \dot{\theta}^2 + \frac{1}{2} j \dot{\phi}^2 \\
 + \frac{1}{2}m\left( l^2\dot{\phi}^2 -2l\dot{\phi}\left( \dot{x}\cos{\phi}+\dot{z}\sin{\phi}\right) \right)
 - \left( M+m \right) g z - mgl \cos{\phi}
 \end{multline}
@@ -117,14 +117,14 @@ Partial derivatives of the Lagrangian with respect to the state vector component
 
 $$
 \begin{cases}
-\frac{\partial{L}}{\partial{x}} =  0 \\
-\frac{\partial{L}}{\partial{z}} =  - \left( M+m \right) g\\
-\frac{\partial{L}}{\partial{\theta}} = 0 \\ 
-\frac{\partial{L}}{\partial{\phi}} = ml \left( \dot{\phi} \left( \dot{x}\sin{\phi} - \dot{z}\cos{\phi}\right) + g \sin{\phi}\right)\\
-\frac{\partial{L}}{\partial{\dot{x}}} =  \left( M+m \right) \dot{x} - ml\dot{\phi}\cos{\phi}\\
-\frac{\partial{L}}{\partial{\dot{z}}} =  \left( M+m \right) \dot{z} - ml\dot{\phi}\sin{\phi}\\
-\frac{\partial{L}}{\partial{\dot{\theta}}} = J \dot{\theta}\\ 
-\frac{\partial{L}}{\partial{\dot{\phi}}} = j \dot{\phi} + ml \left( l\dot{\phi} - \left( \dot{x}\cos{\phi}+\dot{z}\sin{\phi} \right)\right)\\
+\frac{\partial{\mathscr{L}}}{\partial{x}} =  0 \\
+\frac{\partial{\mathscr{L}}}{\partial{z}} =  - \left( M+m \right) g\\
+\frac{\partial{\mathscr{L}}}{\partial{\theta}} = 0 \\ 
+\frac{\partial{\mathscr{L}}}{\partial{\phi}} = ml \left( \dot{\phi} \left( \dot{x}\sin{\phi} - \dot{z}\cos{\phi}\right) + g \sin{\phi}\right)\\
+\frac{\partial{\mathscr{L}}}{\partial{\dot{x}}} =  \left( M+m \right) \dot{x} - ml\dot{\phi}\cos{\phi}\\
+\frac{\partial{\mathscr{L}}}{\partial{\dot{z}}} =  \left( M+m \right) \dot{z} - ml\dot{\phi}\sin{\phi}\\
+\frac{\partial{\mathscr{L}}}{\partial{\dot{\theta}}} = J \dot{\theta}\\ 
+\frac{\partial{\mathscr{L}}}{\partial{\dot{\phi}}} = j \dot{\phi} + ml \left( l\dot{\phi} - \left( \dot{x}\cos{\phi}+\dot{z}\sin{\phi} \right)\right)\\
 \end{cases}
 $$
 
@@ -133,7 +133,7 @@ $$
  *
  
 $$
-\frac{d}{dt}\left( \frac{\partial{L}}{\partial{\dot{x}}} \right) - \frac{\partial{L}}{\partial{x}} = F_x
+\frac{d}{dt}\left( \frac{\partial{\mathscr{L}}}{\partial{\dot{x}}} \right) - \frac{\partial{\mathscr{L}}}{\partial{x}} = F_x
 $$
 
 $$
@@ -143,7 +143,7 @@ $$
  *
  
 $$
-\frac{d}{dt}\left( \frac{\partial{L}}{\partial{\dot{z}}} \right) - \frac{\partial{L}}{\partial{z}} = F_z
+\frac{d}{dt}\left( \frac{\partial{\mathscr{L}}}{\partial{\dot{z}}} \right) - \frac{\partial{\mathscr{L}}}{\partial{z}} = F_z
 $$
 
 $$
@@ -154,7 +154,7 @@ $$
 
 
 $$
-\frac{d}{dt}\left( \frac{\partial{L}}{\partial{\dot{\theta}}} \right) - \frac{\partial{L}}{\partial{\theta}} = M_{\theta}
+\frac{d}{dt}\left( \frac{\partial{\mathscr{L}}}{\partial{\dot{\theta}}} \right) - \frac{\partial{\mathscr{L}}}{\partial{\theta}} = M_{\theta}
 $$
 
 $$
@@ -164,7 +164,7 @@ $$
 *
 
 $$
-\frac{d}{dt}\left( \frac{\partial{L}}{\partial{\dot{\phi}}} \right) - \frac{\partial{L}}{\partial{\phi}} = 0
+\frac{d}{dt}\left( \frac{\partial{\mathscr{L}}}{\partial{\dot{\phi}}} \right) - \frac{\partial{\mathscr{L}}}{\partial{\phi}} = 0
 $$
 
 $$
@@ -228,4 +228,4 @@ A openai gym compatible environment is avaible in the file [pvtol_pole_env.py](h
 	<figcaption>Fig3. -  Simulation of the PVTOL pole under the authority of a linear regulator.</figcaption>
 </figure>
 
-Figure (3) shows a simulation of the model, obtained with this [code](https://github.com/poine/ann_elucubrations/blob/master/test_gym_pvtol_pole.py).
+Figure (3) shows a simulation of the model under the authority of a linear regulator, obtained with this [code](https://github.com/poine/ann_elucubrations/blob/master/src/test_gym_pvtol_pole.py).
