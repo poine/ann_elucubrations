@@ -7,7 +7,7 @@ layout: default
 
 # Planar VTOL with Pole
 
-The *PVTOL with Pole* is a planar simplification of the problem of balancing a pole on top of a quadrotor, as demonstrated by Raffaello d'Andrea in his [TED conference in 2013](https://youtu.be/w2itwFJCgFQ?t=184).
+The *PVTOL with Pole* is a planar simplification of the problem of balancing a pole on top of a quadrotor, as demonstrated by Raffaello d'Andrea in his 2013 [TED talk](https://youtu.be/w2itwFJCgFQ?t=184).
 
 
 <figure>
@@ -46,6 +46,7 @@ $$
 \end{cases}
 $$
 
+<!--
 Computing yet another time derivative, the acceleration of the pole's center of mass is obtained as:
 
 $$
@@ -54,6 +55,7 @@ $$
 \ddot{z}_p = \ddot{z} - l \left(\ddot{\phi}\sin{\phi} + \dot{\phi}^2 \cos{\phi}\right)
 \end{cases}
 $$
+-->
 
 Noting $$v^2=\dot{x}^2+\dot{z}^2$$ and $$v_p^2=\dot{x}_p^2+\dot{z}_p^2$$, the relationship between the pvtol and pole centers of mass velocities is expressed as:
 
@@ -214,3 +216,16 @@ $$
 $$
 
 The system has full rank ( $$det(A) = 1$$ ).
+
+
+### Simulation
+
+The dynamic model for the *pvtol pole* is available in the file [pvtol_pole.py](https://github.com/poine/ann_elucubrations/blob/master/src/gym-foo/gym_foo/envs/pvtol_pole.py).
+A openai gym compatible environment is avaible in the file [pvtol_pole_env.py](https://github.com/poine/ann_elucubrations/blob/master/src/gym-foo/gym_foo/envs/pvtol_pole_env.py).
+<figure>
+	<img src="plots/pvtol_pole_sim_1.png" alt="PVTOL pole simulation plot" width="640">
+	<img src="plots/pvtol_pole_sim_1_anim.apng" alt="PVTOL pole simulation plot" width="640">
+	<figcaption>Fig3. -  Simulation of the PVTOL pole under the authority of a linear regulator.</figcaption>
+</figure>
+
+Figure (3) shows a simulation of the model, obtained with this [code](https://github.com/poine/ann_elucubrations/blob/master/test_gym_pvtol_pole.py).
