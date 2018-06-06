@@ -229,3 +229,9 @@ A openai gym compatible environment is avaible in the file [pvtol_pole_env.py](h
 </figure>
 
 Figure (3) shows a simulation of the model under the authority of a linear regulator, obtained with this [code](https://github.com/poine/ann_elucubrations/blob/master/src/test_gym_pvtol_pole.py).
+
+<figure>
+	<img src="plots/pvtol_pole_sim_2.png" alt="PVTOL pole simulation plot" width="640">
+	<img src="plots/pvtol_pole_sim_2_anim.apng" alt="PVTOL pole simulation plot" width="640">
+	<figcaption>Fig4. -  Simulation of the PVTOL pole under the authority of a linear regulator.</figcaption>
+</figure>

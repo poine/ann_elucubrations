@@ -276,6 +276,12 @@ class Agent:
         # Initialize replay memory
         self.replay_buffer = dql_utils.ReplayBuffer(int(args['buffer_size']), int(args['random_seed']))
 
+        # Needed to enable BatchNorm. 
+        # This hurts the performance on Pendulum but could be useful
+        # in other environments.
+        if args['enable_batch_norm']:
+            tflearn.is_training(True)
+        
         for i in range(int(args['max_episodes'])):
 
             s = env.reset()
@@ -417,6 +423,7 @@ if __name__ == '__main__':
     parser.add_argument('--tau', help='soft target update parameter', default=0.001)
     parser.add_argument('--buffer-size', help='max size of the replay buffer', default=1000000)
     parser.add_argument('--minibatch-size', help='size of minibatch for minibatch-SGD', default=64)
+    parser.add_argument('--enable-batch-norm', help='enable batch normalization',  action='store_true', default=False)
 
     # run parameters
     parser.add_argument('--env', help='choose the gym env- tested on {Pendulum-v0}', default='Pendulum-v0')
