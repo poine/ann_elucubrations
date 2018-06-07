@@ -16,7 +16,7 @@ Author: Patrick Emami , Antoine Drouin
 """
 
 import os, shutil, logging
-import numpy as np
+import numpy as np, pickle
 import tensorflow as tf, tflearn
 import gym
 from gym import wrappers
@@ -239,6 +239,9 @@ class Agent:
         
         self.actor_noise = dql_utils.OrnsteinUhlenbeckActionNoise(mu=np.zeros(self.action_dim), sigma=0.3)
 
+        self.replay_buffer = dql_utils.ReplayBuffer(int(args['buffer_size']), int(args['random_seed']))
+
+
 
     # ===========================
     #   Tensorflow Summary Ops
@@ -272,9 +275,6 @@ class Agent:
         # Initialize target network weights
         self.actor.update_target_network()
         self.critic.update_target_network()
-
-        # Initialize replay memory
-        self.replay_buffer = dql_utils.ReplayBuffer(int(args['buffer_size']), int(args['random_seed']))
 
         # Needed to enable BatchNorm. 
         # This hurts the performance on Pendulum but could be useful
@@ -369,10 +369,14 @@ class Agent:
         if os.path.isdir(dirname):
             print('Model save directory exist ({}): Deleting it before proceeding'.format(dirname))
             shutil.rmtree(dirname)
+        os.makedirs(dirname)
+        
         #inputs, outputs = {'act_in':self.actor.inputs}, {'act_scaled_out':self.actor.scaled_out} 
         #tf.saved_model.simple_save(sess, dirname, inputs, outputs)
         saver = tf.train.Saver()
         saver.save(sess,  dirname+'my-model')
+        with open(os.path.join(dirname, 'replay_buf'), "wb") as f:
+            pickle.dump([self.replay_buffer], f)
 
     def load(self, sess, export_dir):
         LOG.info('  Loading agent from directory {}'.format(export_dir))
@@ -380,6 +384,8 @@ class Agent:
         #tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], export_dir)
         saver = tf.train.Saver()
         saver.restore(sess, export_dir+'my-model')
+        with open(os.path.join(export_dir, 'replay_buf'), "rb") as f:
+            (self.replay_buffer, ) = pickle.load(f)
             
 def main(args):
 
@@ -405,11 +411,12 @@ def main(args):
             agent.train(sess, env, args)
             if args['use_gym_monitor']:
                 env.monitor.close()
-        if args['save']:
-            agent.save(sess, os.path.join(args['save_dir'], 'agent'))
-            
+
         if args['test']:
             agent.test(sess, env, args)
+
+        if args['save']:
+            agent.save(sess, os.path.join(args['save_dir'], 'agent'))
         
 
 if __name__ == '__main__':

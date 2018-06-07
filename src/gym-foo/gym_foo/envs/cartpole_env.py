@@ -3,7 +3,7 @@ import gym, gym.utils.seeding, math, numpy as np
 #from gym.utils import seeding
 # adapted from /home/poine/.local/lib/python2.7/site-packages/gym/envs/classic_control/cartpole.py
 
-class FooEnv(gym.Env):
+class CartPoleEnv(gym.Env):
     metadata = {'render.modes': ['human']}
   
     def __init__(self):
