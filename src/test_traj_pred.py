@@ -47,7 +47,7 @@ class DataSet:
     def parse(self, filename):
         print('parsing trajectorie from {}'.format(filename))
         self.trajectories = []
-        with open(filename, 'rb') as f:
+        with open(filename, 'r') as f:
             for line in f:
                 if line.startswith('#') or line.startswith('Version:') or line.startswith('Centre:') or line.startswith('NbVols:') or line.startswith('NbPlots:'): continue
                 elif line.startswith('$'):

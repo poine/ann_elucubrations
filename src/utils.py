@@ -156,11 +156,11 @@ def decorate(ax, title=None, xlab=None, ylab=None, legend=None, xlim=None, ylim=
         ax.yaxis.set_label_text(ylab)
     if title:
         ax.set_title(title, my_title_spec)
-    if legend <> None:
+    if legend is not None:
         ax.legend(legend, loc='best')
-    if xlim <> None:
+    if xlim is not None:
         ax.set_xlim(xlim[0], xlim[1])
-    if ylim <> None:
+    if ylim is not None:
         ax.set_ylim(ylim[0], ylim[1])
 
 def plot_in_grid(time, plots, ncol, figure=None, window_title="None", legend=None, filename=None,
@@ -172,7 +172,7 @@ def plot_in_grid(time, plots, ncol, figure=None, window_title="None", legend=Non
         ax = figure.add_subplot(nrow, ncol, i+1)
         ax.plot(time, data)
         decorate(ax, title=title, ylab=ylab)
-    if legend<>None:
+    if legend is not None:
         ax.legend(legend, loc='best')
     save_if(filename)
     return figure
