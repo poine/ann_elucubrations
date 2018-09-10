@@ -1,0 +1,76 @@
+#
+# Here I am testing controlling throttle
+#
+#
+random_seed: 1234
+max_episode_len: 1500
+render_env: true
+max_episodes: 2000
+summary_dir: results/bicycle_foo_07_05
+enable_batch_norm: false
+
+env:
+  name: bicycle-v2
+  path_filenames: [/home/poine/work/ann_elucubrations/data/paths/oval_01.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/oval_02.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/oval_03.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/oval_04.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/oval_05.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/oval_06.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/oval_07.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/oval_08.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_01.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_02.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_03.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_04.npz,
+#                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_05.npz
+                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_01.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_02.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_03.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/fig_of_height_04.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/ellipse_01.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/ellipse_02.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/ellipse_03.npz,
+                   /home/poine/work/ann_elucubrations/data/paths/ellipse_04.npz,
+                   ]
+  steering_only: false
+  obs_cfg: 12
+  carrot_dists: [0.3, 0.3]
+  reset_at_random_track_location: true
+
+  vel_sp: 2.
+
+  # Drawing
+  car_l: 0.2
+  car_w: 0.1
+  # Dynamics
+  car_m: 0.2     # mass
+  car_j: 0.003   # inertia 
+  car_lf: 0.05   # cg to front axle (m)
+  car_lr: 0.05   # cg to rear axle (m)
+  car_mu: 1.     # road/tire friction (N, 1.75 nominal)
+
+  # Termination
+  err_track_max: .3
+  err_heading_max: 2.09
+  # Cost
+  cost_tracking_err: 1.
+  cost_heading_err: 0.025
+  cost_vel: 1.
+  cost_steering: 0.001
+  cost_dsteering: 0.5
+  cost_dthrottle: 0.5
+  # Reward
+  reward_dist: 0.
+  
+agent:
+  buffer_size: 2000000     # max size of the replay buffer
+  tau:  0.001              # soft target update parameter
+  actor:
+    noise_sigma: 0.1       # exploration noise
+    learning_rate: 0.0001  # actor network learning rate
+    minibatch_size: 64     # size of minibatch for minibatch-SGD
+  critic:
+    learning_rate: 0.001   # critic network learning rate
+    gamma: 0.99            # discount factor for critic updates
+

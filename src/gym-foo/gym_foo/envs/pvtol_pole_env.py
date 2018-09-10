@@ -1,6 +1,6 @@
 import gym, gym.utils.seeding, math, numpy as np
 
-import pvtol_pole as pvtp
+from . import pvtol_pole as pvtp
 
 '''
 

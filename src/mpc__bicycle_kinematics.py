@@ -33,7 +33,7 @@ class Controller:
         def lfunc(x, u, x_sp, u_sp):
             dx, du = x - x_sp, u - u_sp
             cost = mpc.mtimes(dx.T, scx, dx) + mpc.mtimes(du.T, scu, du)
-            print cost
+            print( cost)
             return cost
         stage_cost = mpc.getCasadiFunc(lfunc, [_nx, _nu, _nx, _nu], ["x", "u", "x_sp", "u_sp"], funcname="l")
   

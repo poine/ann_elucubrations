@@ -71,3 +71,6 @@ class OrnsteinUhlenbeckActionNoise:
 
     def __repr__(self):
         return 'OrnsteinUhlenbeckActionNoise(mu={}, sigma={})'.format(self.mu, self.sigma)
+
+    def set_sigma(self, sigma):
+        self.sigma = sigma

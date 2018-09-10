@@ -3,7 +3,7 @@ import gym, gym.utils.seeding, math, numpy as np
 #from gym.utils import seeding
 # adapted from /home/poine/.local/lib/python2.7/site-packages/gym/envs/classic_control/cartpole.py
 
-import misc
+from . import misc
 import pdb
 
 class CartPoleWithRefEnv(gym.Env):
@@ -62,7 +62,7 @@ class CartPoleWithRefEnv(gym.Env):
         dx, dxd = x-xr, xd-xrd
         
         #cost = -0.5 + 0.1*(dx**2) + 0.02*(dxd**2) + 0.125*(theta**2) + 0.01*(theta_dot**2) + 0.01*(action[0]**2)
-        cost = -0.5 + 0.2*(dx**2) + 0.01*(action[0]**2)
+        cost = -1.5 + 0.2*(dx**2) + 0.01*(action[0]**2)
         reward = -cost
 
         over =  x < -self.x_threshold \

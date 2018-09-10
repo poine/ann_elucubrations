@@ -7,6 +7,9 @@ def norm_angle(a):
     while a<-math.pi: a+=2*math.pi
     return a
 
+def angle_normalize(x):
+    return (((x+np.pi) % (2*np.pi)) - np.pi)
+
 class CartPole:
     def __init__(self):
         self.gravity = 9.8

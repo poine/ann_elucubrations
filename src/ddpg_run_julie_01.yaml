@@ -1,0 +1,38 @@
+# 
+random_seed: 1234
+max_episode_len: 3000
+render_env: false
+max_episodes: 500
+summary_dir: results/bicycle_ros_3
+enable_batch_norm: false
+#
+env:
+  name: julie-v0
+  path_filename: /home/poine/work/ann_elucubrations/data/paths/fig_of_height_11.npz
+  carrot_dists: [3., 3.]
+  reset_at_random_track_location: false
+  vel_sp: 10.
+  car_l: 2.
+  car_w: 1.
+  # termination
+  err_track_max: 3.
+  err_heading_max: 1.5
+  # cost
+  cost_tracking_err: .01
+  cost_heading_err: 0.1
+  cost_steering: 0.02
+  # reward
+  reward_vel: 0.1
+  reward_dist: 0.02
+  
+  
+agent:
+  buffer_size: 1000000     # max size of the replay buffer
+  tau:  0.001              # soft target update parameter
+  actor:
+    noise_sigma: 0.05      # exploration noise
+    learning_rate: 0.0001  # actor network learning rate
+    minibatch_size: 64     # size of minibatch for minibatch-SGD
+  critic:
+    learning_rate: 0.001   # critic network learning rate
+    gamma: 0.99            # discount factor for critic updates

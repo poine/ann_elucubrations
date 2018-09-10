@@ -1,0 +1,21 @@
+random_seed: 1234
+max_episode_len: 1000
+render_env: false
+max_episodes: 2000
+summary_dir: results/cartpole_legacy_2
+enable_batch_norm: false
+
+agent:
+  buffer_size: 2000000     # max size of the replay buffer
+  tau:  0.001              # soft target update parameter
+  actor:
+    noise_sigma: 0.5       # exploration noise
+    learning_rate: 0.0001  # actor network learning rate
+    minibatch_size: 64     # size of minibatch for minibatch-SGD
+  critic:
+    learning_rate: 0.001   # critic network learning rate
+    gamma: 0.99            # discount factor for critic updates
+
+env:
+  name: cont-cartpole-v1
+

@@ -6,8 +6,8 @@
 '''
 
 import numpy as np, math, scipy.integrate, matplotlib.pyplot as plt
-import control.matlab
-import pdb
+#import control.matlab
+import pdb, time
 #import pure_pursuit, guidance, guidance.utils as gut, guidance.path_factory
 import two_d_guidance, utils as ut
 
@@ -22,6 +22,8 @@ class Param:
         self.g = 9.81                 # gravity (in m/s2)
         self.mu = 1.75                # road-tire friction (TBD, eq 3.5)
         self.pacejka = pacejka_paper  # tire model
+        self.steering_max = np.deg2rad(45.)
+        self.accel_max = 4.
         self.compute_aux()
         
     def compute_aux(self):
@@ -78,14 +80,22 @@ def dyn(X, t, U, P):
         Ff, Fr = P.fc*P.pacejka(alpha_f), P.fc*P.pacejka(alpha_r)
     else:
         Ff, Fr = 0.,0.
-    Xd[s_vx] = U[i_a] + X[s_psid]*X[s_vy]
+    Xd[s_vx] = P.accel_max*U[i_a] + X[s_psid]*X[s_vy]
     Xd[s_vy] = 1/P.m*(Ff*math.cos(U[i_df])+Fr) - X[s_psid]*X[s_vx]
     Xd[s_psid] = 1/P.J*(P.Lf*Ff-P.Lr*Fr)
 
     return Xd
 
 def disc_dyn(Xk, Uk, dt, P):
-    return scipy.integrate.odeint(dyn, Xk, [0, dt], args=(Uk, P ))[1]
+    if 0:
+        f = lambda t, X: dyn(X, t, Uk, P)
+        sol = scipy.integrate.solve_ivp(f, [0, dt], Xk, t_eval=[dt], method='RK45')
+        Xkp1 = sol.y[:,0]
+        #pdb.set_trace()
+    else:
+        Xk, Xkp1 = scipy.integrate.odeint(dyn, Xk, [0, dt], args=(Uk, P ))
+    Xkp1[s_psi] = two_d_guidance.utils.normalize_headings(Xkp1[s_psi])
+    return Xkp1
 
 
 
@@ -100,7 +110,7 @@ class Plant:
 
 
 def plot_friction():
-    alphas = np.linspace(ut.rad_of_deg(-30), ut.rad_of_deg(30), 100)
+    alphas = np.linspace(ut.rad_of_deg(-45), ut.rad_of_deg(45), 100)
     F1 = pacejka_dry(alphas)
     F2 = pacejka_snow(alphas)
     plt.plot(ut.deg_of_rad(alphas), F1)
@@ -167,8 +177,8 @@ def sim_pure_pursuit(p, X0, path_filename, duration=44, v_sp=0.9, stop_at_eop=Fa
                 ctl.path.reset()
                 U[i-1] = ctl.compute([X[i-1,s_x], X[i-1,s_y]], X[i-1,s_psi])
         U[i-1,i_a] = v_ctl.compute(X[i-1,s_vx])
-        X[i] =  disc_dyn(X[i-1], time[i]-time[i-1], U[i-1], p )
-        X[i, s_psi] = two_d_guidance.norm_yaw(X[i, s_psi])
+        X[i] =  disc_dyn(X[i-1], U[i-1], time[i]-time[i-1], p )
+        X[i, s_psi] = two_d_guidance.utils.normalize_headings(X[i, s_psi])
     U[-1] = U[-2]
     return time[:_len], X[:_len], U[:_len], ctl.path.points
 
@@ -176,13 +186,18 @@ def sim_pure_pursuit(p, X0, path_filename, duration=44, v_sp=0.9, stop_at_eop=Fa
 if __name__ == "__main__":
 
     #plot_friction()
-    p = Param()
-    #X0 = [1.2, 0.45, 0, 1., 0, 0]
-    #time, X, U, R = sim_open_loop(p, X0, 0.2)
-    #time, X, U, R = sim_pure_pursuit(p, X0, '/home/poine/work/oscar.git/oscar/oscar_control/paths/foh_01.npz')
-    X0= [-.2, 3.2, 0., 0.01, 0, 0]
-    time, X, U, R = sim_pure_pursuit(p, X0, '/home/poine/work/oscar.git/oscar/oscar_control/paths/track_ethz_dual_01.npz',
-                                     v_sp=0.5, stop_at_eop=True)
-    plot_time(time, X, U, R)
-    plot2D(time, X, U, R)
+    if 1:
+        p = Param()
+        #X0 = [1.2, 0.45, 0, 1., 0, 0]
+        #time, X, U, R = sim_open_loop(p, X0, 0.2)
+        #time, X, U, R = sim_pure_pursuit(p, X0, '/home/poine/work/oscar.git/oscar/oscar_control/paths/foh_01.npz')
+        X0= [-.2, 3.2, 0., 0.01, 0, 0]
+        path_filename = '/home/poine/work/ann_elucubrations/data/paths/track_ethz_dual_01.npz'
+        path_filename = '/home/poine/work/ann_elucubrations/data/paths/oval_01.npz'
+        tstart = time.time()
+        _time, X, U, R = sim_pure_pursuit(p, X0, path_filename, v_sp=1.2, stop_at_eop=False)
+        tend = time.time()
+        print('sim duration {}s'.format(tend-tstart))
+        plot_time(_time, X, U, R)
+        plot2D(_time, X, U, R)
     plt.show()

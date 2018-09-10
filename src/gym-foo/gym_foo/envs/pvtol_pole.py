@@ -1,5 +1,6 @@
 import numpy as np, scipy.integrate
-import misc
+
+from . import misc
 
 '''
 

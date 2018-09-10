@@ -1,21 +1,22 @@
 
 import sys , math, numpy as np
 
-import path
+import two_d_guidance.path
+import pdb
 
 class EndOfPathException(Exception):
     pass
 
 class PurePursuit:
     def __init__(self, path_file, params, look_ahead=0.3):
-        self.path = path.Path(load=path_file)
+        self.path = two_d_guidance.path.Path(load=path_file)
         self.params = params
         self.look_ahead = look_ahead
 
     def compute(self, cur_pos, cur_psi):
-        p1, p2, end_reached, ip1, ip2 = self.path.find_carrot_alt(cur_pos, _d=self.look_ahead)
-        if end_reached:
-            raise EndOfPathException
+        p1, p2, end_reached, ip1, ip2 = self.path.find_carrot_looped(cur_pos, _d=self.look_ahead)
+        #if end_reached:
+        #    raise EndOfPathException
 
         p0p2_w = p2 - cur_pos
         cy, sy = math.cos(cur_psi), math.sin(cur_psi)

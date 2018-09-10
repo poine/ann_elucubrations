@@ -1,0 +1,33 @@
+random_seed: 1234
+max_episode_len: 1500
+render_env: true
+max_episodes: 500
+summary_dir: results/bicycle_foo_6
+enable_batch_norm: false
+
+env:
+  name: bicycle-v0
+  #path_filename: /home/poine/work/ann_elucubrations/data/paths/circle_01.npz  
+  #path_filename: /home/poine/work/ann_elucubrations/data/paths/ellipse_01.npz
+  #path_filename: /home/poine/work/ann_elucubrations/data/paths/oval_01.npz
+  #path_filename: /home/poine/work/ann_elucubrations/data/paths/oval_02.np
+  path_filename: /home/poine/work/ann_elucubrations/data/paths/fig_of_height_01.npz
+  #path_filename: /home/poine/work/ann_elucubrations/data/paths/fig_of_height_10.npz
+  #carrot_dists: [0.2, 0.2, 0.2]
+  carrot_dists: [0.3, 0.3]
+  reset_at_random_track_location: true
+  vel_sp: 1.75
+  car_l: 0.2
+  car_w: 0.1
+  
+agent:
+  buffer_size: 1000000     # max size of the replay buffer
+  tau:  0.001              # soft target update parameter
+  actor:
+    noise_sigma: 0.025      # exploration noise
+    learning_rate: 0.0001  # actor network learning rate
+    minibatch_size: 64     # size of minibatch for minibatch-SGD
+  critic:
+    learning_rate: 0.001   # critic network learning rate
+    gamma: 0.99            # discount factor for critic updates
+

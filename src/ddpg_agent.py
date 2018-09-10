@@ -1,35 +1,10 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
-""" 
-http://pemami4911.github.io/blog/2016/08/21/ddpg-rl.html
-
-Implementation of DDPG - Deep Deterministic Policy Gradient
-
-Algorithm and hyperparameter details can be found here: 
-    http://arxiv.org/pdf/1509.02971v2.pdf
-
-The algorithm is tested on the Pendulum-v0 OpenAI gym task 
-and developed with tflearn + Tensorflow
-
-Author: Patrick Emami , Antoine Drouin
-"""
-
-import os, shutil, logging
-import numpy as np, pickle
+import os, shutil, logging, yaml, argparse, pickle, pprint, numpy as np
 import tensorflow as tf, tflearn
-import gym
-from gym import wrappers
-import argparse, pprint as pp
-
-import dql_utils, gym_foo
-
+import gym, gym_foo
+import ddpg_utils
 import pdb
 
 LOG = logging.getLogger('ddpg')
-
-
-
 # ===========================
 #   Actor and Critic DNNs
 # ===========================
@@ -221,27 +196,31 @@ class CriticNetwork(object):
 
 
 class Agent:
-    def __init__(self, sess, env, args):
+    def __init__(self, sess, env, config):
         self.state_dim = env.observation_space.shape[0]
         self.action_dim = env.action_space.shape[0]
         self.action_bound = env.action_space.high
+        print('in Agent::__init__: state_dim {} action_dim {}'.format(self.state_dim, self.action_dim))
         # Ensure action bound is symmetric
         assert (np.all(env.action_space.high == -env.action_space.low))
 
         self.actor = ActorNetwork(sess, self.state_dim, self.action_dim, self.action_bound,
-                             float(args['actor_lr']), float(args['tau']),
-                             int(args['minibatch_size']))
+                                  config['agent']['actor']['learning_rate'],
+                                  config['agent']['tau'],
+                                  config['agent']['actor']['minibatch_size'])
 
         self.critic = CriticNetwork(sess, self.state_dim, self.action_dim,
-                               float(args['critic_lr']), float(args['tau']),
-                               float(args['gamma']),
-                               self.actor.get_num_trainable_vars())
+                                    config['agent']['critic']['learning_rate'],
+                                    config['agent']['tau'],
+                                    config['agent']['critic']['gamma'],
+                                    self.actor.get_num_trainable_vars())
         
-        self.actor_noise = dql_utils.OrnsteinUhlenbeckActionNoise(mu=np.zeros(self.action_dim), sigma=0.3)
+        self.actor_noise = ddpg_utils.OrnsteinUhlenbeckActionNoise(mu=np.zeros(self.action_dim),
+                                                                   sigma=config['agent']['actor']['noise_sigma'])
 
-        self.replay_buffer = dql_utils.ReplayBuffer(int(args['buffer_size']), int(args['random_seed']))
+        self.replay_buffer = ddpg_utils.ReplayBuffer(config['agent']['buffer_size'], config['random_seed'])
 
-
+        self.init_training(sess, env, config)
 
     # ===========================
     #   Tensorflow Summary Ops
@@ -263,14 +242,13 @@ class Agent:
     # ===========================
     #   Agent Training
     # ===========================
-
-    def train(self, sess, env, args):
-
+    def init_training(self, sess, env, args):
+        
         # Set up summary Ops
         summary_ops, summary_vars = self.build_summaries()
 
         sess.run(tf.global_variables_initializer())
-        writer = tf.summary.FileWriter(args['summary_dir'], sess.graph)
+        self.writer = tf.summary.FileWriter(args['summary_dir'], sess.graph)
 
         # Initialize target network weights
         self.actor.update_target_network()
@@ -281,21 +259,30 @@ class Agent:
         # in other environments.
         if args['enable_batch_norm']:
             tflearn.is_training(True)
-        
-        for i in range(int(args['max_episodes'])):
+        self.episode_nb = 0
 
+    
+    
+    def train(self, sess, env, cfg):
+
+        while self.episode_nb < cfg['max_episodes']:
+            self.run_training_episode(sess, env, cfg)
+
+            
+    def run_training_episode(self, sess, env, cfg):
             s = env.reset()
-
+            self.actor_noise.set_sigma(cfg['agent']['actor']['noise_sigma'])
             ep_reward = 0
             ep_ave_max_q = 0
 
-            for j in range(int(args['max_episode_len'])):
+            for j in range(int(cfg['max_episode_len'])):
 
-                if args['render_env']:
+                if cfg['render_env']:
                     env.render()
 
                 # Compute action
                 a = self.actor.predict(np.reshape(s, (1, self.actor.s_dim))) + self.actor_noise()
+                #a = self.actor.predict(np.reshape(s, (1, self.actor.s_dim))) + np.exp(-0.003*i)*self.actor_noise()
 
                 s2, r, terminal, info = env.step(a[0])
 
@@ -304,16 +291,16 @@ class Agent:
 
                 # Keep adding experience to the memory until
                 # there are at least minibatch size samples
-                if self.replay_buffer.size() > int(args['minibatch_size']):
+                if self.replay_buffer.size() > cfg['agent']['actor']['minibatch_size']:
                     s_batch, a_batch, r_batch, t_batch, s2_batch = \
-                        self.replay_buffer.sample_batch(int(args['minibatch_size']))
+                        self.replay_buffer.sample_batch(cfg['agent']['actor']['minibatch_size'])
 
                     # Calculate targets
                     target_q = self.critic.predict_target(
                         s2_batch, self.actor.predict_target(s2_batch))
 
                     y_i = []
-                    for k in range(int(args['minibatch_size'])):
+                    for k in range(cfg['agent']['actor']['minibatch_size']):
                         if t_batch[k]:
                             y_i.append(r_batch[k])
                         else:
@@ -321,7 +308,7 @@ class Agent:
 
                     # Update the critic given the targets
                     predicted_q_value, _ = self.critic.train(
-                        s_batch, a_batch, np.reshape(y_i, (int(args['minibatch_size']), 1)))
+                        s_batch, a_batch, np.reshape(y_i, (cfg['agent']['actor']['minibatch_size'], 1)))
 
                     ep_ave_max_q += np.amax(predicted_q_value)
 
@@ -337,26 +324,31 @@ class Agent:
                 s = s2
                 ep_reward += r
 
-                if terminal or j >= int(args['max_episode_len'])-1:
-
-                    summary_str = sess.run(self.summary_ops, feed_dict={
-                        self.summary_vars[0]: ep_reward,
-                        self.summary_vars[1]: ep_ave_max_q / float(j),
-                        self.summary_vars[2]: float(j)
-                    })
-
-                    writer.add_summary(summary_str, i)
-                    writer.flush()
-
-                    fmt = '| Episode: {: 4d} | Reward: {: 4d} | Qmax: {:.4f} | len {: 4d} | rep buf {}'
-                    print(fmt.format(i, int(ep_reward), (ep_ave_max_q / float(j)), j, self.replay_buffer.size()))
+                if terminal or j >= int(cfg['max_episode_len'])-1:
+                    if j > 0: ep_ave_max_q /= float(j)
+                    self.report_episode(sess, j, ep_reward, ep_ave_max_q)
                     break
+            self.episode_nb += 1
 
+    def report_episode(self, sess, ep_len, ep_reward, ep_ave_max_q):
+        summary_str = sess.run(self.summary_ops, feed_dict={
+            self.summary_vars[0]: ep_reward,
+            self.summary_vars[1]: ep_ave_max_q,
+            self.summary_vars[2]: float(ep_len)
+        })
+        self.writer.add_summary(summary_str, self.episode_nb)
+        self.writer.flush()
+
+        fmt = '| Episode: {: 4d} | Reward: {: 4d} | Qmax: {:.4f} | len {: 4d} | rep buf {}'
+        print(fmt.format(self.episode_nb, int(ep_reward), ep_ave_max_q , ep_len, self.replay_buffer.size()))
+
+                
     def test(self, sess, env, args):
         s = env.reset()
         ep_reward = 0.
         for j in range(int(args['max_episode_len'])):
-            env.render()
+            if args['render_env']:
+                env.render()
             a = self.actor.predict(np.reshape(s, (1, self.actor.s_dim)))
             s, r, terminal, info = env.step(a[0])
             ep_reward += r
@@ -374,88 +366,141 @@ class Agent:
         #inputs, outputs = {'act_in':self.actor.inputs}, {'act_scaled_out':self.actor.scaled_out} 
         #tf.saved_model.simple_save(sess, dirname, inputs, outputs)
         saver = tf.train.Saver()
-        saver.save(sess,  dirname+'my-model')
+        #saver.save(sess,  dirname+'my-model')
+        saver.save(sess,  os.path.join(dirname, 'my-model'))
         with open(os.path.join(dirname, 'replay_buf'), "wb") as f:
             pickle.dump([self.replay_buffer], f)
-
+        with open(os.path.join(dirname, 'state'), "wb") as f:
+            pickle.dump([self.episode_nb], f)
+            
     def load(self, sess, export_dir):
         LOG.info('  Loading agent from directory {}'.format(export_dir))
         sess.run(tf.global_variables_initializer())
         #tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], export_dir)
         saver = tf.train.Saver()
-        saver.restore(sess, export_dir+'my-model')
+        saver.restore(sess, os.path.join(export_dir,'my-model'))
         with open(os.path.join(export_dir, 'replay_buf'), "rb") as f:
             (self.replay_buffer, ) = pickle.load(f)
-            
-def main(args):
+        with open(os.path.join(export_dir, 'state'), "rb") as f:
+            (self.episode_nb, ) = pickle.load(f)
 
-    with tf.Session() as sess:
 
-        env = gym.make(args['env'])
-        agent = Agent(sess, env, args)
-                
-        np.random.seed(int(args['random_seed']))
-        tf.set_random_seed(int(args['random_seed']))
-        env.seed(int(args['random_seed']))
+class Config:
+    def __init__(self):
+        pass
 
-        if args['use_gym_monitor']:
-            if not args['render_env']:
-                env = wrappers.Monitor(env, args['monitor_dir'], video_callable=False, force=True)
-            else:
-                env = wrappers.Monitor(env, args['monitor_dir'], force=True)
-                
-        if args['load']:
-            agent.load(sess, os.path.join(args['load_dir'], 'agent'))
+    def setup_cmd_line_parser(self):
+        parser = argparse.ArgumentParser(description='provide arguments for DDPG agent')
+        # agent parameters
+        parser.add_argument('--actor-lr', help='actor network learning rate', default=0.0001)
+        parser.add_argument('--critic-lr', help='critic network learning rate', default=0.001)
+        parser.add_argument('--gamma', help='discount factor for critic updates', default=0.99)
+        parser.add_argument('--tau', help='soft target update parameter', default=0.001)
+        parser.add_argument('--buffer-size', help='max size of the replay buffer', default=1000000)
+        parser.add_argument('--minibatch-size', help='size of minibatch for minibatch-SGD', default=64)
+        parser.add_argument('--enable-batch-norm', help='enable batch normalization',  action='store_true', default=False)
+        parser.add_argument('--actor-noise-sigma', help='exploration noise', action='store')#default=0.3)
+        # run parameters
+        parser.add_argument('--env', help='choose the gym env- tested on {Pendulum-v0}', action='store')
+        parser.add_argument('--random-seed', help='random seed for repeatability', action='store')
+        parser.add_argument('--max-episodes', help='max num of episodes to do while training', action='store')#default=50000)
+        parser.add_argument('--max-episode-len', help='max length of 1 episode', default=1000)
+        parser.add_argument('--render-env', help='render the gym env', action='store_true')
+        parser.add_argument('--use-gym-monitor', help='record gym results', action='store_true')
+        parser.add_argument('--monitor-dir', help='directory for storing gym results', default='./results/gym_ddpg')
+        parser.add_argument('--summary-dir', help='directory for storing tensorboard info', action='store')#default='./results/tf_ddpg')
 
-        if args['train']:
-            agent.train(sess, env, args)
-            if args['use_gym_monitor']:
-                env.monitor.close()
+        parser.add_argument('--config', help='read_configuration from file', default=None)
+        return parser
 
-        if args['test']:
-            agent.test(sess, env, args)
+    def parse_cmd_line(self, parser):
+        args = vars(parser.parse_args())
+        #print('dumping command line')
+        #pprint.pprint(args)
 
-        if args['save']:
-            agent.save(sess, os.path.join(args['save_dir'], 'agent'))
+        if args['config'] is not None: self.load(args['config'])
         
+        if args['random_seed'] is not None: self.cfg['random_seed'] = int(args['random_seed'])
+        if args['env'] is not None: self.cfg['env']['name'] = args['env']
+        if args['render_env'] is not None: self.cfg['render_env'] = True
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    parser = argparse.ArgumentParser(description='provide arguments for DDPG agent')
+        if args['max_episodes'] is not None: self.cfg['max_episodes'] = int(args['max_episodes'])
+        if args['summary_dir'] is not None: self.cfg['summary_dir'] = args['summary_dir']
+        if args['actor_noise_sigma'] is not None: self.cfg['agent']['actor']['noise_sigma'] = float(args['actor_noise_sigma'])
+        
+        return args
+        
+    def load(self, filename):
+        with open( filename, 'r') as stream:
+            self.cfg = yaml.load(stream)
 
-    # agent parameters
-    parser.add_argument('--actor-lr', help='actor network learning rate', default=0.0001)
-    parser.add_argument('--critic-lr', help='critic network learning rate', default=0.001)
-    parser.add_argument('--gamma', help='discount factor for critic updates', default=0.99)
-    parser.add_argument('--tau', help='soft target update parameter', default=0.001)
-    parser.add_argument('--buffer-size', help='max size of the replay buffer', default=1000000)
-    parser.add_argument('--minibatch-size', help='size of minibatch for minibatch-SGD', default=64)
-    parser.add_argument('--enable-batch-norm', help='enable batch normalization',  action='store_true', default=False)
+    def dump(self):
+        print('dumping config')
+        pprint.pprint(self.cfg)
 
-    # run parameters
-    parser.add_argument('--env', help='choose the gym env- tested on {Pendulum-v0}', default='Pendulum-v0')
-    parser.add_argument('--random-seed', help='random seed for repeatability', default=1234)
-    parser.add_argument('--max-episodes', help='max num of episodes to do while training', default=50000)
-    parser.add_argument('--max-episode-len', help='max length of 1 episode', default=1000)
-    parser.add_argument('--render-env', help='render the gym env', action='store_true')
-    parser.add_argument('--use-gym-monitor', help='record gym results', action='store_true')
-    parser.add_argument('--monitor-dir', help='directory for storing gym results', default='./results/gym_ddpg')
-    parser.add_argument('--summary-dir', help='directory for storing tensorboard info', default='./results/tf_ddpg')
+    def set(self, keys, val):
+        d = self.cfg
+        for key in keys[:-1]:
+            d = d[key]
+        d[keys[-1]] = val
 
-    parser.add_argument('--train', help='train the agent', action='store_true')
-    parser.add_argument('--test', help='test the trained agent', action='store_true')
-    parser.add_argument('--save', help='save the trained agent', action='store_true')
-    parser.add_argument('--save_dir', help='directory to save the agent', default='/tmp')
-    parser.add_argument('--load', help='load the agent', action='store_true')
-    parser.add_argument('--load_dir', help='directory from which to load the agent', default='/tmp')
-     
-    parser.set_defaults(render_env=False)
-    parser.set_defaults(use_gym_monitor=False)
-    parser.set_defaults(train=False)
-    parser.set_defaults(test=False)
-    
-    args = vars(parser.parse_args())
-    
-    pp.pprint(args)
+    def get(self, keys):
+        d = self.cfg
+        for key in keys:
+            d = d[key]
+        return d
 
-    main(args)
+
+class Model:
+    def __init__(self, config):
+        self.config = config
+        self.session = tf.Session()
+        self.session.__enter__()
+        self.env = gym.make(self.config.cfg['env']['name'])
+        try:  self.env.load_config(self.config.cfg['env'])
+        except AttributeError:
+            pass
+        np.random.seed(self.config.cfg['random_seed'])
+        tf.set_random_seed(self.config.cfg['random_seed'])
+        self.env.seed(self.config.cfg['random_seed'])
+        
+        self.agent = Agent(self.session, self.env, self.config.cfg)
+        self.is_training = False
+
+    def __enter__(self):
+        print('in Model::enter')
+        return self
+        
+    def __exit__(self, type, value, traceback):
+        print('in Model::exit')
+        self.session.__exit__(type, value, traceback)
+        
+    def load_agent(self, export_dir):
+        self.agent.load(self.session, export_dir)
+
+    def save_agent(self, export_dir):
+        self.agent.save(self.session, export_dir)
+        
+    def test_agent(self):
+        self.agent.test(self.session, self.env, self.config.cfg)
+
+    def init_training(self):
+        if os.path.isdir(self.config.cfg['summary_dir']):
+            print('Model summary directory exist ({}): Deleting it before proceeding'.format(self.config.cfg['summary_dir']))
+            shutil.rmtree(self.config.cfg['summary_dir'])
+        self.agent.init_training(self.session, self.env, self.config.cfg)
+
+    def run_training(self):
+        self.is_training = True
+        self.stop_requested = False
+        while self.agent.episode_nb < self.config.cfg['max_episodes'] and not self.stop_requested:
+            self.agent.run_training_episode(self.session, self.env, self.config.cfg)
+        #self.agent.train(self.session, self.env, self.config.cfg)
+        self.is_training = False
+        
+    def abort_training(self):
+        self.stop_requested = True
+        
+    def train_agent(self):
+        #self.init_training()
+        self.run_training()

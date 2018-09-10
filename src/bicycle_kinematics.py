@@ -125,7 +125,7 @@ if __name__ == "__main__":
     #X0= [1.2, 0.45, 0., 1]
     X0= [0., 3.3, 0., 1]
     #time, X, U, R = sim_open_loop(p, X0, 0.2)
-    path_file='/home/poine/work/ann_elucubrations/data/paths/oval_01.npz'
+    #path_file='/home/poine/work/ann_elucubrations/data/paths/oval_01.npz'
     path_file='/home/poine/work/ann_elucubrations/data/paths/track_ethz_dual_01.npz'
     time, X, U, R = sim_pure_pursuit(p, X0, path_file, 23.)
     

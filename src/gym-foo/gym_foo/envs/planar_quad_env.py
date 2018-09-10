@@ -1,7 +1,7 @@
 import gym, gym.utils.seeding, math, numpy as np
 
 
-import misc
+from . import misc
 import pdb
 
 class PlanarQuadEnv(gym.Env):
