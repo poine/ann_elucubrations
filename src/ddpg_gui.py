@@ -1,6 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# This is a graphical interface for running DDPG agents
+#
+
+
 #import dql__gym_pendulum as dql # don't know why this has to go first...
 import ddpg_agent
 import tensorflow as tf
@@ -114,7 +119,8 @@ class App:
             else:
                 self.model.abort_training()
 
-    def on_param_changed(self, entry, (keys, fmt, parse_fn)):
+    def on_param_changed(self, entry, args):
+        keys, fmt, parse_fn = args
         print(keys, fmt, parse_fn)
         try:
             val = parse_fn(entry.get_text())

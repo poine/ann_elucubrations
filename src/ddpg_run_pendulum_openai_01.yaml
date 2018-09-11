@@ -1,12 +1,5 @@
 random_seed: 1234
 
-#actor_lr: 0.0001   # actor network learning rate
-#tau: 0.001         # soft target update parameter
-#minibatch_size: 64 # size of minibatch for minibatch-SGD
-#critic_lr: 0.001   # critic network learning rate
-#gamma: 0.99        # discount factor for critic updates
-#actor_noise_sigma: 0.05 # exploration noise
-#buffer_size: 1000000    # max size of the replay buffer
 max_episode_len: 1000
 render_env: false
 max_episodes: 30
@@ -14,6 +7,7 @@ summary_dir: results/pendulum_legacy_0
 enable_batch_norm: false
 
 agent:
+  type: openai
   buffer_size: 1000000     # max size of the replay buffer
   tau:  0.001              # soft target update parameter
   actor:

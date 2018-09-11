@@ -451,8 +451,69 @@ class Config:
         return d
 
 
+
+import baselines.ddpg.memory, baselines.ddpg.models, baselines.ddpg.training
+from baselines.ddpg.noise import *
+class BaseLineAgent:
+    def __init__(self, sess, env, config):
+
+        noise_type = 'adaptive-param_0.2' # choices are adaptive-param_xx, ou_xx, normal_xx, none
+        # Parse noise_type
+        self.action_noise = None
+        self.param_noise = None
+        nb_actions = env.action_space.shape[-1]
+        for current_noise_type in noise_type.split(','):
+            current_noise_type = current_noise_type.strip()
+            if current_noise_type == 'none':
+                pass
+            elif 'adaptive-param' in current_noise_type:
+                _, stddev = current_noise_type.split('_')
+                self.param_noise = AdaptiveParamNoiseSpec(initial_stddev=float(stddev), desired_action_stddev=float(stddev))
+            elif 'normal' in current_noise_type:
+                _, stddev = current_noise_type.split('_')
+                self.action_noise = NormalActionNoise(mu=np.zeros(nb_actions), sigma=float(stddev) * np.ones(nb_actions))
+            elif 'ou' in current_noise_type:
+                _, stddev = current_noise_type.split('_')
+                self.action_noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(nb_actions), sigma=float(stddev) * np.ones(nb_actions))
+            else:
+                raise RuntimeError('unknown noise type "{}"'.format(current_noise_type))
+        # Configure components.
+        self.memory = baselines.ddpg.memory.Memory(limit=int(1e6), action_shape=env.action_space.shape, observation_shape=env.observation_space.shape)
+        layer_norm = True# config.get(('agent', 'layer_norm'))
+        print(layer_norm)
+        self.critic = baselines.ddpg.models.Critic(layer_norm=layer_norm)
+        self.actor = baselines.ddpg.models.Actor(nb_actions, layer_norm=layer_norm)
+        # bof....
+        self.episode_nb = 0
+        
+    def run_training_episode(self, sess, env, cfg):
+        tf.reset_default_graph()
+        eval_env = None
+        kwargs = {'nb_epochs': 500,
+                  'nb_epoch_cycles': 20,
+                  'render_eval': False,
+                  'reward_scale':1.,
+                  'render': True,
+                  'normalize_returns': False,
+                  'normalize_observations': True,
+                  'critic_l2_reg': 1e-2,
+                  'actor_lr': 1e-4,
+                  'critic_lr': 1e-3,
+                  'popart': False,
+                  'gamma':0.99,
+                  'clip_norm':None,
+                  'nb_train_steps':50,
+                  'nb_rollout_steps':100,
+                  'nb_eval_steps':100,
+                  'batch_size':64 }
+        baselines.ddpg.training.train(env=env, eval_env=eval_env, param_noise=self.param_noise,
+                                      action_noise=self.action_noise, actor=self.actor, critic=self.critic, memory=self.memory, **kwargs)
+
+        
+    
 class Model:
     def __init__(self, config):
+        #config.dump()
         self.config = config
         self.session = tf.Session()
         self.session.__enter__()
@@ -464,7 +525,12 @@ class Model:
         tf.set_random_seed(self.config.cfg['random_seed'])
         self.env.seed(self.config.cfg['random_seed'])
         
-        self.agent = Agent(self.session, self.env, self.config.cfg)
+        agent_type = config.get(('agent', 'type'))
+        try:
+            agent_class = {'openai':BaseLineAgent, 'emami':Agent}[config.get(('agent', 'type'))]
+            self.agent = agent_class(self.session, self.env, self.config.cfg)
+        except KeyError:
+            print('### ERROR: Unknow agent type {}'.format(config.get(('agent', 'type'))))
         self.is_training = False
 
     def __enter__(self):
@@ -495,7 +561,6 @@ class Model:
         self.stop_requested = False
         while self.agent.episode_nb < self.config.cfg['max_episodes'] and not self.stop_requested:
             self.agent.run_training_episode(self.session, self.env, self.config.cfg)
-        #self.agent.train(self.session, self.env, self.config.cfg)
         self.is_training = False
         
     def abort_training(self):
